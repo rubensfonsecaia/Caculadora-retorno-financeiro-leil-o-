@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Auction Analysis v10.8</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        .input-group { @apply flex flex-col mb-3; }
+        label { @apply text-[10px] font-bold text-slate-400 uppercase mb-1 tracking-wider; }
+        input, select { @apply p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none transition-all bg-white text-sm font-semibold; }
+        .card { @apply bg-white p-6 rounded-3xl shadow-sm border border-slate-200; }
+        .kpi-title { @apply text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest; }
+        .kpi-value { @apply text-3xl font-black text-slate-900; }
+        th { @apply text-[10px] uppercase tracking-tighter text-slate-400 p-3 text-left border-b; }
+        td { @apply p-3 border-b border-slate-50 text-[12px] font-medium text-slate-600; }
+        .bg-investor { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+        .highlight-fin { @apply bg-blue-50 text-blue-700 font-bold border-l-4 border-blue-600; }
+        .highlight-tax { @apply bg-rose-50 text-rose-700 font-semibold; }
+    </style>
+</head>
+<body class="p-4 md:p-10 text-slate-800">
+    <div class="max-w-7xl mx-auto">
+        <header class="mb-10 flex justify-between items-end border-b border-slate-200 pb-8">
+            <div>
+                <h1 class="text-3xl font-black text-slate-900 uppercase italic tracking-tighter text-blue-600">Auction Analysis v10.8</h1>
+                <p class="text-slate-500 text-sm font-medium italic">Simulador Profissional: Operações de Leilão Caixa e Alavancagem SBPE</p>
+            </div>
+            <div class="text-right hidden md:block">
+                <span class="bg-blue-600 text-white text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest italic">Auction Strategy Disclosure</span>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-4 space-y-6">
+                <div class="card bg-slate-50/50 shadow-inner">
+                    <h2 class="text-xs font-black text-blue-900 mb-5 uppercase italic flex items-center gap-2">
+                        <span class="w-2 h-2 bg-blue-600 rounded-full"></span> 1. Aquisição e Capital Inicial
+                    </h2>
+                    <div class="input-group"><label>Valor do Lance Mínimo (R$)</label><input type="number" id="lanceMinimo" value="129344.49"></div>
+                    <div class="input-group"><label>Valor de Entrada / Sinal (R$)</label><input type="number" id="entradaSinal" value="25800.00" class="border-blue-200 bg-blue-50 font-bold"></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="input-group"><label>Valor da Parcela (R$)</label><input type="number" id="valorParcela" value="1244.86"></div>
+                        <div class="input-group"><label>Meses com o Imóvel</label><input type="number" id="mesesCarregamento" value="12"></div>
+                    </div>
+                </div>
+
+                <div class="card border-amber-100 bg-amber-50/10 shadow-inner">
+                    <h2 class="text-xs font-black text-amber-600 mb-5 uppercase italic flex items-center gap-2">
+                        <span class="w-2 h-2 bg-amber-500 rounded-full"></span> 2. Custos Operacionais e Frictional Costs
+                    </h2>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="input-group"><label>Documentação / ITBI (R$)</label><input type="number" id="custoDoc" value="5000"></div>
+                        <div class="input-group"><label>Reforma / Capex (R$)</label><input type="number" id="custoReforma" value="5000"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="input-group"><label>Advogado / Desocup. (R$)</label><input type="number" id="custoAdvogado" value="3000"></div>
+                        <div class="input-group"><label>Sua TMA (% ao mês)</label><input type="number" id="tmaInput" value="1.5" step="0.1" class="border-amber-400 bg-amber-50 font-black"></div>
+                    </div>
+                    <div class="hidden"><input type="number" id="selicAnual" value="10.75"></div>
+                </div>
+
+                <div class="card border-emerald-100 shadow-inner">
+                    <h2 class="text-xs font-black text-emerald-700 mb-5 uppercase italic flex items-center gap-2">
+                        <span class="w-2 h-2 bg-emerald-600 rounded-full"></span> 3. Desinvestimento e Tributos
+                    </h2>
+                    <div class="input-group"><label>Valor de Venda Alvo (R$)</label><input type="number" id="vendaAlvo" value="200000" class="bg-emerald-50 border-emerald-200 font-black"></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="input-group"><label>Comissão Venda (%)</label><input type="number" id="pComissao" value="6"></div>
+                        <div class="input-group">
+                            <label>Estrutura Fiscal</label>
+                            <select id="regimeTributario" class="text-xs font-bold">
+                                <option value="PF">PF - Ganho Cap (15%)</option>
+                                <option value="PJ">Holding / PJ - RET (4%)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="calcular()" class="w-full bg-slate-900 hover:bg-black text-white font-black py-5 rounded-3xl shadow-xl transition-all uppercase tracking-widest text-xs">Simular Performance</button>
+            </div>
+
+            <div class="lg:col-span-8 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center font-black uppercase tracking-tighter">
+                    <div class="card border-b-4 border-b-blue-600"><h3 class="kpi-title">Múltiplo (MoC de Caixa)</h3><div class="kpi-value" id="resMoc">0.0x</div></div>
+                    <div class="card border-b-4 border-b-emerald-500"><h3 class="kpi-title">TIR Mensal (Alavancada)</h3><div class="kpi-value text-emerald-600" id="resTir">0%</div></div>
+                    <div class="card border-b-4 border-b-slate-900"><h3 class="kpi-title">Lucro Líquido Real</h3><div class="kpi-value" id="resLucroAbs">R$ 0</div></div>
+                </div>
+
+                <div id="statusCard" class="card transition-all duration-500 border-l-8 bg-white p-6 shadow-xl">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Status de Viabilidade vs TMA</h3>
+                            <div id="statusText" class="text-xl font-black uppercase italic tracking-tighter text-slate-800">Aguardando...</div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase block">Ref. Selic Mensal:</span>
+                            <span id="selicMensal" class="text-sm font-black text-amber-600">0.85% a.m.</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 h-2 w-full bg-slate-100 rounded-full overflow-hidden flex">
+                        <div id="tmaBar" class="h-full bg-slate-300 transition-all duration-700" style="width: 50%"></div>
+                        <div id="tirBar" class="h-full bg-blue-500 transition-all duration-700" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="card overflow-hidden p-0 border-slate-300 shadow-lg">
+                    <div class="bg-slate-900 p-5 flex justify-between items-center text-white font-bold uppercase text-[10px] tracking-widest italic">Análise Dimensional do Fluxo de Caixa</div>
+                    <div class="p-2 overflow-x-auto">
+                        <table class="w-full text-slate-800">
+                            <thead><tr><th>Item de Operação</th><th class="text-right">Valor</th><th class="text-right">% s/ Venda</th></tr></thead>
+                            <tbody id="resumoTabela">
+                                <tr class="bg-slate-50 font-bold"><td>RECEITA BRUTA DE VENDA (VGV)</td><td class="text-right" id="tabReceita">-</td><td class="text-right">100%</td></tr>
+                                <tr><td>Entrada / Sinal (Aporte Cash Out)</td><td class="text-right" id="tabEntrada">-</td><td class="text-right" id="pEntrada">-</td></tr>
+                                <tr><td>Acumulado de Parcelas Financiamento (Carregamento)</td><td class="text-right" id="tabParcelas">-</td><td class="text-right" id="pParcelas">-</td></tr>
+                                <tr class="bg-slate-50/60 italic"><td>Custos Notariais e ITBI</td><td class="text-right" id="tabDoc">-</td><td class="text-right" id="pDoc">-</td></tr>
+                                <tr class="bg-slate-50/60 italic"><td>Intervenções / CapEx Reforma</td><td class="text-right" id="tabReforma">-</td><td class="text-right" id="pReforma">-</td></tr>
+                                <tr class="bg-slate-50/60 italic"><td>Assessoria Jurídica Especializada</td><td class="text-right" id="tabAdvogado">-</td><td class="text-right" id="pAdvogado">-</td></tr>
+                                <tr class="highlight-fin"><td>SALDO DEVEDOR QUITADO NA VENDA</td><td class="text-right" id="tabSaldoDevedor">-</td><td class="text-right" id="pSaldoDevedor">-</td></tr>
+                                <tr><td>Corretagem de Venda Terceiros</td><td class="text-right" id="tabCom">-</td><td class="text-right" id="pCom">-</td></tr>
+                                <tr class="highlight-tax"><td id="descImposto">Imposto sobre Ganho</td><td class="text-right" id="tabImposto">-</td><td class="text-right" id="pImposto">-</td></tr>
+                                <tr class="bg-blue-600 font-black text-white text-base"><td>LUCRO LÍQUIDO DO INVESTIDOR</td><td class="text-right" id="tabLucro">-</td><td class="text-right" id="pLucro">-</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                    <div class="card h-80 text-center shadow-md">
+                        <h3 class="kpi-title mb-4">Composição do Capital Alocado (Desembolso Efetivo)</h3>
+                        <div class="relative h-64"><canvas id="chartInvestor"></canvas></div>
+                    </div>
+                    <div class="card bg-investor text-white h-80 flex flex-col justify-between shadow-2xl">
+                        <div>
+                            <h3 class="text-[10px] font-black uppercase mb-4 text-blue-300 tracking-widest text-center border-b border-white/10 pb-2 italic">ROI s/ Capital Desembolsado</h3>
+                            <div class="grid grid-cols-2 gap-4 mt-6">
+                                <div class="text-center border-r border-white/10">
+                                    <p class="text-[9px] opacity-70 uppercase font-bold mb-1">Métrica Alavancada</p>
+                                    <p class="text-4xl font-black text-blue-400" id="resRoe">0%</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-[9px] opacity-70 uppercase font-bold mb-1 italic text-slate-400">ROI Nominal Total</p>
+                                    <p class="text-4xl font-black text-slate-400" id="resRoi100">0%</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pt-4 border-t border-white/10 text-center text-xs">
+                            <p class="opacity-70 uppercase font-bold mb-1 tracking-widest">Alavancagem Bancária (SBPE)</p>
+                            <p class="text-xl font-black text-emerald-400" id="resDiff">+0%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto mt-12 mb-20 p-10 bg-white border border-slate-200 rounded-[3rem] shadow-sm font-sans">
+            <div class="flex items-center gap-4 mb-10 border-b pb-6 border-slate-100">
+                <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-xl">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tighter italic">Memorial de Análise de Liquidação & Alavancagem</h2>
+                    <p class="text-[10px] text-blue-600 font-black uppercase tracking-[0.2em]">Diretrizes de Monitoramento de Leilões v10.8</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-16 text-[11px] text-slate-600 leading-relaxed">
+                <div class="space-y-8">
+                    <section>
+                        <h4 class="flex items-center gap-2 font-black text-blue-600 uppercase mb-3 tracking-widest">
+                            <span class="w-1.5 h-1.5 bg-blue-600 rounded-full"></span> 1. Mecânica de Desinvestimento SBPE
+                        </h4>
+                        <p class="text-justify mb-2">Nas aquisições de leilão via financiamento, o risco imobiliário é otimizado através do menor desembolso de caixa (<em>Equity</em>). Na alienação do ativo, a instituição financiadora liquida o saldo devedor remanescente diretamente da transação de venda, repassando o lucro líquido remanescente à conta do investidor.</p>
+                    </section>
+
+                    <section>
+                        <h4 class="flex items-center gap-2 font-black text-blue-600 uppercase mb-3 tracking-widest">
+                            <span class="w-1.5 h-1.5 bg-blue-600 rounded-full"></span> 2. Custos de Carregamento Friccionais
+                        </h4>
+                        <p class="text-justify">O modelo contabiliza como investimento real todo o capital que sai efetivamente do caixa do investidor mês a mês antes do desinvestimento. Isso inclui a entrada, o somatório das parcelas do banco durante a janela de holding, reformas necessárias, custos com regularização em cartório e honorários advocatícios focados em desalocação/auditoria.</p>
+                    </section>
+                </div>
+
+                <div class="space-y-8">
+                    <section>
+                        <h4 class="flex items-center gap-2 font-black text-amber-600 uppercase mb-3 tracking-widest">
+                            <span class="w-1.5 h-1.5 bg-amber-600 rounded-full"></span> 3. Proteção e Blindagem Fiscal
+                        </h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="p-3 border border-slate-100 rounded-xl">
+                                <p class="font-bold text-slate-800 mb-1 underline">Regime Pessoa Física</p>
+                                <p>Incidência de 15% sobre o Ganho de Capital Real. Custos de reformas e taxas de regularização do leilão podem ser incorporados legalmente para reduzir a base tributável.</p>
+                            </div>
+                            <div class="p-3 border border-slate-100 rounded-xl">
+                                <p class="font-bold text-slate-800 mb-1 underline">Holding Imobiliária (PJ)</p>
+                                <p>Tributação linear via Regime Especial de Tributação (RET) ou Lucro Presumido, incidindo sobre a receita bruta. Ideal para operações de giro contínuo.</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+            
+            <div class="mt-10 pt-8 border-t border-slate-100 flex justify-between items-center opacity-50 text-[9px] font-bold uppercase tracking-widest">
+                <span>Engenharia de Estruturação Imobiliária</span>
+                <span>Auction Leverage Framework</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let chartP = null;
+        Chart.register(ChartDataLabels);
+
+        function calcular() {
+            try {
+                // Inputs do Usuário
+                const lanceMinimo = parseFloat(document.getElementById('lanceMinimo').value) || 0;
+                const entradaSinal = parseFloat(document.getElementById('entradaSinal').value) || 0;
+                const valorParcela = parseFloat(document.getElementById('valorParcela').value) || 0;
+                const mesesCarregamento = parseFloat(document.getElementById('mesesCarregamento').value) || 1;
+                const custoDoc = parseFloat(document.getElementById('custoDoc').value) || 0;
+                const custoReforma = parseFloat(document.getElementById('custoReforma').value) || 0;
+                const custoAdvogado = parseFloat(document.getElementById('custoAdvogado').value) || 0;
+                const vVenda = parseFloat(document.getElementById('vendaAlvo').value) || 0;
+                const pComissao = parseFloat(document.getElementById('pComissao').value) / 100 || 0;
+                const tma = parseFloat(document.getElementById('tmaInput').value) || 0;
+                const regime = document.getElementById('regimeTributario').value;
+                const selicAnual = parseFloat(document.getElementById('selicAnual').value) / 100 || 0;
+
+                // Fluxo Financeiro Interno
+                const totalParcelasPagas = valorParcela * mesesCarregamento;
+                
+                // Saldo devedor inicial financiado junto ao banco
+                const saldoDevedorInicial = Math.max(0, lanceMinimo - entradaSinal);
+                
+                // Estimativa simples de amortização de saldo devedor para quitação futura
+                // Na venda, você precisa quitar o banco. Consideramos redução linear simplificada.
+                const taxaAmortizacaoEstimada = saldoDevedorInicial * 0.002 * mesesCarregamento; 
+                const saldoDevedorParaQuitacao = Math.max(0, saldoDevedorInicial - taxaAmortizacaoEstimada);
+
+                // O que saiu do bolso de fato (Investimento Real de Caixa)
+                const investimentoDesembolsado = entradaSinal + totalParcelasPagas + custoDoc + custoReforma + custoAdvogado;
+
+                // Custos de Desinvestimento
+                const comissaoVenda = vVenda * pComissao;
+
+                // Cálculo de Tributação
+                let impFinal = 0;
+                if (regime === "PJ") {
+                    impFinal = vVenda * 0.04;
+                } else {
+                    // Custo total contábil para ganho de capital (Imóvel + Melhorias/Custos permitidos pela Receita)
+                    const baseCustoContabil = lanceMinimo + custoDoc + custoReforma + custoAdvogado;
+                    const ganhoCapital = Math.max(0, vVenda - baseCustoContabil - comissaoVenda);
+                    impFinal = ganhoCapital * 0.15;
+                }
+
+                // Distribuição do Lucro Final Líquido de Caixa
+                // Venda (-) Saldo do Banco (-) Comissões (-) Imposto (-) Dinheiro que você já tinha colocado do bolso
+                const lucroLiq = vVenda - saldoDevedorParaQuitacao - comissaoVenda - impFinal - investimentoDesembolsado;
+
+                // Métricas de Performance Financeira
+                const roeFinanc = (investimentoDesembolsado > 0) ? (lucroLiq / investimentoDesembolsado) * 100 : 0;
+                const moc = (investimentoDesembolsado > 0) ? ((lucroLiq + investimentoDesembolsado) / investimentoDesembolsado) : 0;
+                
+                // TIR Mensal Alavancada Baseada no Período de Holding
+                const tirM = (investimentoDesembolsado > 0 && (lucroLiq + investimentoDesembolsado) > 0) 
+                    ? (Math.pow(1 + (roeFinanc / 100), 1 / mesesCarregamento) - 1) * 100 
+                    : 0;
+
+                // ROI Nominal Simplificado (Lucro sobre o custo total do ativo caso fosse comprado à vista)
+                const custoTotalOperacao = lanceMinimo + custoDoc + custoReforma + custoAdvogado + comissaoVenda + impFinal;
+                const roiNominal = ((vVenda - custoTotalOperacao) / custoTotalOperacao) * 100;
+
+                // Formatadores de Interface
+                const f = (v) => v.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+                const p = (v) => ((v / vVenda) * 100).toFixed(1) + '%';
+
+                // Atualização dos Painéis KPI
+                document.getElementById('resMoc').innerText = moc.toFixed(2) + 'x';
+                document.getElementById('resTir').innerText = tirM.toFixed(2) + '%';
+                document.getElementById('resLucroAbs').innerText = f(lucroLiq);
+                document.getElementById('resRoe').innerText = roeFinanc.toFixed(1) + '%';
+                document.getElementById('resRoi100').innerText = roiNominal.toFixed(1) + '%';
+                document.getElementById('resDiff').innerText = `+${(roeFinanc - roiNominal).toFixed(1)}%`;
+                
+                const sMen = (Math.pow(1 + selicAnual, 1/12) - 1) * 100;
+                document.getElementById('selicMensal').innerText = sMen.toFixed(2) + "% a.m.";
+
+                // Alimentação da Tabela Dinâmica
+                document.getElementById('tabReceita').innerText = f(vVenda);
+                document.getElementById('tabEntrada').innerText = f(entradaSinal);
+                document.getElementById('pEntrada').innerText = p(entradaSinal);
+                document.getElementById('tabParcelas').innerText = f(totalParcelasPagas);
+                document.getElementById('pParcelas').innerText = p(totalParcelasPagas);
+                document.getElementById('tabDoc').innerText = f(custoDoc);
+                document.getElementById('pDoc').innerText = p(custoDoc);
+                document.getElementById('tabReforma').innerText = f(custoReforma);
+                document.getElementById('pReforma').innerText = p(custoReforma);
+                document.getElementById('tabAdvogado').innerText = f(custoAdvogado);
+                document.getElementById('pAdvogado').innerText = p(custoAdvogado);
+                
+                document.getElementById('tabSaldoDevedor').innerText = f(saldoDevedorParaQuitacao);
+                document.getElementById('pSaldoDevedor').innerText = p(saldoDevedorParaQuitacao);
+                
+                document.getElementById('tabCom').innerText = f(comissaoVenda);
+                document.getElementById('pCom').innerText = p(comissaoVenda);
+                document.getElementById('tabImposto').innerText = f(impFinal);
+                document.getElementById('pImposto').innerText = p(impFinal);
+                
+                document.getElementById('tabLucro').innerText = f(lucroLiq);
+                document.getElementById('pLucro').innerText = p(lucroLiq);
+                document.getElementById('descImposto').innerText = regime === "PJ" ? "Imposto (RET 4%)" : "Imposto (PF 15%)";
+
+                // Gerenciamento Dinâmico de Faróis e Cores de Risco
+                const card = document.getElementById('statusCard');
+                const stxt = document.getElementById('statusText');
+                
+                if (tirM > tma) {
+                    card.className = "card border-l-8 border-emerald-500 bg-emerald-50 p-6 shadow-xl";
+                    stxt.innerText = "Operação Altamente Atrativa";
+                } else if (tirM < sMen) {
+                    card.className = "card border-l-8 border-rose-500 bg-rose-50 p-6 shadow-xl";
+                    stxt.innerText = "Inviável (Abaixo do Custo de Oportunidade)";
+                } else {
+                    card.className = "card border-l-8 border-amber-500 bg-amber-50 p-6 shadow-xl";
+                    stxt.innerText = "Retorno Marginal / Risco Moderado";
+                }
+
+                // Renderização das Barras Comparativas
+                const ratio = (tirM / (tirM + tma)) * 100;
+                document.getElementById('tmaBar').style.width = (100 - Math.min(ratio, 100)) + "%";
+                document.getElementById('tirBar').style.width = Math.min(ratio, 100) + "%";
+
+                // Atualização do Gráfico Rosca (Doughnut)
+                const ctx = document.getElementById('chartInvestor').getContext('2d');
+                if (chartP) chartP.destroy();
+                chartP = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Entrada/Sinal', 'Parcelas Pagas', 'Reforma/Capex', 'Taxas/Adv/Doc'],
+                        datasets: [{
+                            data: [entradaSinal, totalParcelasPagas, custoReforma, (custoDoc + custoAdvogado)],
+                            backgroundColor: ['#2563eb', '#93c5fd', '#f59e0b', '#f43f5e'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        maintainAspectRatio: false, cutout: '75%',
+                        plugins: {
+                            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10, weight: '600' } } },
+                            datalabels: {
+                                color: '#fff', font: { weight: 'bold', size: 10 },
+                                display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0,
+                                formatter: (v, ctx) => {
+                                    let s = 0; ctx.chart.data.datasets[0].data.map(d => s += d);
+                                    return (v * 100 / s).toFixed(1) + "%";
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (e) { console.error("Erro na compilação dos dados: ", e); }
+        }
+        
+        window.addEventListener('load', () => {
+            setTimeout(calcular, 100);
+        });
+    </script>
+</body>
+</html>
