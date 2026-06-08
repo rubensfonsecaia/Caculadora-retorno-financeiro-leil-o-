@@ -24,44 +24,20 @@
         .btn-pct.ativo { background: #2563eb; color: white; border-color: #2563eb; }
         .highlight-fin { @apply bg-blue-50 text-blue-700 font-bold border-l-4 border-blue-600; }
         .highlight-tax { @apply bg-rose-50 text-rose-700 font-semibold; }
-
         @media print {
-            /* Reset de página */
             @page { size: A4; margin: 12mm 10mm; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-
-            /* Esconde elementos de interface */
             .no-print { display: none !important; }
-            body { background: white !important; padding: 0 !important; font-size: 11px; }
-
-            /* Remove sombras e bordas pesadas para impressão limpa */
+            body { background: white !important; padding: 0 !important; }
             .card, [class*="shadow"] { box-shadow: none !important; }
-            .rounded-3xl, .rounded-2xl, .rounded-xl { border-radius: 8px !important; }
-
-            /* Evita quebras dentro de blocos importantes */
-            .card, tr, .kpi-value, #vereditoCard { page-break-inside: avoid; break-inside: avoid; }
-
-            /* Força quebra antes do memorial */
+            .card, tr, #vereditoCard { page-break-inside: avoid; break-inside: avoid; }
             #secaoMemorial { page-break-before: always; break-before: always; }
-
-            /* Layout de impressão: coluna única */
             .lg\:grid-cols-12 { grid-template-columns: 1fr !important; }
             .lg\:col-span-4, .lg\:col-span-8 { grid-column: span 1 !important; }
-
-            /* Ajusta tamanho da fonte nos KPIs */
-            .text-3xl, .text-2xl { font-size: 1.2rem !important; }
-            .text-4xl { font-size: 1.5rem !important; }
-
-            /* Garante fundo colorido nos blocos de destaque */
             #vereditoCard { background: #0f172a !important; color: white !important; }
             .bg-slate-900 { background: #0f172a !important; }
             .bg-blue-600 { background: #2563eb !important; }
-            .bg-emerald-50 { background: #ecfdf5 !important; }
-            .bg-amber-50 { background: #fffbeb !important; }
-            .bg-rose-50 { background: #fff1f2 !important; }
-
-            /* Canvas do gráfico: fixa tamanho para não distorcer */
-            #chartInvestor { max-height: 180px !important; }
+            canvas { max-height: 280px !important; }
         }
     </style>
 </head>
@@ -74,9 +50,7 @@
             </div>
             <div class="flex items-center gap-3">
                 <button onclick="exportarPDF()" class="no-print flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-[11px] font-black px-5 py-2.5 rounded-2xl shadow-lg transition-all uppercase tracking-widest">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h4a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-                    </svg>
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h4a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
                     Exportar PDF
                 </button>
                 <div class="text-right hidden md:block">
@@ -193,7 +167,7 @@
                             <input type="number" id="vAvaliacao" value="200000" class="border-amber-300" oninput="calcular()">
                         </div>
                     </div>
-                    <!-- Dívida de condomínio: visível apenas quando leilão Caixa = Sim -->
+                    <!-- Dívida de condomínio: visível apenas quando Estimar Dívidas = Sim -->
                     <div id="divCondominio" class="bg-amber-50 border border-amber-200 rounded-2xl p-3 mb-3">
                         <p class="text-[9px] font-black text-amber-700 uppercase tracking-widest mb-2">⚠ Dívida de Condomínio (até 10% da Avaliação)</p>
                         <div class="grid grid-cols-2 gap-2">
@@ -206,24 +180,15 @@
                                 <input type="text" id="condominioValorDisplay" readonly class="border-amber-200 bg-amber-100/60 text-amber-800 font-black text-center cursor-default">
                             </div>
                         </div>
-                        <p class="text-[8px] text-amber-600 mt-2 leading-tight">Em leilões Caixa, o arrematante assume dívidas de condomínio do imóvel, limitadas a 10% do valor de avaliação (Lei 8.009/90 e jurisprudência consolidada).</p>
+                        <p class="text-[8px] text-amber-600 mt-2 leading-tight">Em leilões Caixa, o arrematante assume dívidas de condomínio do imóvel, limitadas a 10% do valor de avaliação.</p>
                     </div>
-                    <!-- ITBI + Escritura + Registro: percentuais sobre o lance, calculados automaticamente -->
+                    <!-- ITBI + Escritura + Registro -->
                     <div class="bg-slate-100/70 rounded-2xl p-3 mb-3 border border-slate-200">
                         <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">ITBI / Escritura / Registro — % sobre o lance (auto)</p>
                         <div class="grid grid-cols-3 gap-2">
-                            <div class="input-group !mb-0">
-                                <label>ITBI (%)</label>
-                                <input type="number" id="pItbi" value="3" step="0.1" class="border-slate-300 bg-white text-center" oninput="calcular()">
-                            </div>
-                            <div class="input-group !mb-0">
-                                <label>Escritura (%)</label>
-                                <input type="number" id="pEscritura" value="1" step="0.1" class="border-slate-300 bg-white text-center" oninput="calcular()">
-                            </div>
-                            <div class="input-group !mb-0">
-                                <label>Registro (%)</label>
-                                <input type="number" id="pRegistro" value="1" step="0.1" class="border-slate-300 bg-white text-center" oninput="calcular()">
-                            </div>
+                            <div class="input-group !mb-0"><label>ITBI (%)</label><input type="number" id="pItbi" value="3" step="0.1" class="border-slate-300 bg-white text-center" oninput="calcular()"></div>
+                            <div class="input-group !mb-0"><label>Escritura (%)</label><input type="number" id="pEscritura" value="1" step="0.1" class="border-slate-300 bg-white text-center" oninput="calcular()"></div>
+                            <div class="input-group !mb-0"><label>Registro (%)</label><input type="number" id="pRegistro" value="1" step="0.1" class="border-slate-300 bg-white text-center" oninput="calcular()"></div>
                         </div>
                         <div class="flex justify-between items-center mt-2 pt-2 border-t border-slate-200">
                             <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Total calculado:</span>
@@ -238,54 +203,30 @@
                         <div class="input-group"><label>Sua TMA (% ao mês)</label><input type="number" id="tmaInput" value="1.5" step="0.1" class="border-amber-400 bg-amber-50 font-black" oninput="calcular()"></div>
                         <div class="input-group"><label>Selic (% ao ano)</label><input type="number" id="selicAnual" value="14.50" step="0.25" class="border-slate-300 bg-slate-50 font-bold" oninput="calcular()"></div>
                     </div>
-
                     <!-- CARREGAMENTO MENSAL: IPTU + Condomínio -->
                     <div class="bg-amber-50/60 border border-amber-200 rounded-2xl p-3 mt-1">
                         <div class="flex justify-between items-center mb-3">
                             <p class="text-[9px] font-black text-amber-700 uppercase tracking-widest">Carregamento Mensal — IPTU + Condomínio</p>
                             <div class="flex gap-1">
-                                <button id="btnCarregamentoEstimar" onclick="setModoCarregamento('estimar')"
-                                    class="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wide border transition-all bg-amber-500 text-white border-amber-500">⚡ Estimar</button>
-                                <button id="btnCarregamentoManual" onclick="setModoCarregamento('manual')"
-                                    class="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wide border transition-all bg-white text-slate-500 border-slate-200">✎ Manual</button>
+                                <button id="btnCarregamentoEstimar" onclick="setModoCarregamento('estimar')" class="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wide border transition-all bg-amber-500 text-white border-amber-500">⚡ Estimar</button>
+                                <button id="btnCarregamentoManual" onclick="setModoCarregamento('manual')" class="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wide border transition-all bg-white text-slate-500 border-slate-200">✎ Manual</button>
                             </div>
                         </div>
-
-                        <!-- Modo Estimar -->
                         <div id="divCarregamentoEstimar">
                             <p class="text-[8px] font-black text-amber-600 uppercase tracking-widest mb-2">Parâmetros de Estimativa</p>
                             <div class="grid grid-cols-3 gap-2 mb-2">
-                                <div class="input-group !mb-0">
-                                    <label>Alíquota IPTU (% a.a.)</label>
-                                    <input type="number" id="aliquotaIptu" value="1.0" step="0.1" min="0" class="border-amber-300 bg-white text-center font-bold" oninput="calcular()">
-                                </div>
-                                <div class="input-group !mb-0">
-                                    <label>Condomínio (R$/m²/mês)</label>
-                                    <input type="number" id="condominioM2" value="8" step="0.5" min="0" class="border-amber-300 bg-white text-center font-bold" oninput="calcular()">
-                                </div>
-                                <div class="input-group !mb-0">
-                                    <label>Área útil (m²)</label>
-                                    <input type="number" id="areaUtil" value="50" step="1" min="0" class="border-amber-300 bg-white text-center font-bold" oninput="calcular()">
-                                </div>
+                                <div class="input-group !mb-0"><label>Alíquota IPTU (% a.a.)</label><input type="number" id="aliquotaIptu" value="1.0" step="0.1" min="0" class="border-amber-300 bg-white text-center font-bold" oninput="calcular()"></div>
+                                <div class="input-group !mb-0"><label>Condomínio (R$/m²/mês)</label><input type="number" id="condominioM2" value="8" step="0.5" min="0" class="border-amber-300 bg-white text-center font-bold" oninput="calcular()"></div>
+                                <div class="input-group !mb-0"><label>Área útil (m²)</label><input type="number" id="areaUtil" value="50" step="1" min="0" class="border-amber-300 bg-white text-center font-bold" oninput="calcular()"></div>
                             </div>
-                            <p class="text-[8px] text-amber-600 italic leading-tight">IPTU = Lance × alíquota ÷ 12 &nbsp;|&nbsp; Cond. = Área útil × R$/m² &nbsp;|&nbsp; Alíquota ref: 0,5–1,5% a.a. (municípios BR) &nbsp;|&nbsp; Cond. ref: R$5–12/m²/mês</p>
+                            <p class="text-[8px] text-amber-600 italic leading-tight">IPTU = Lance × alíquota ÷ 12 | Cond. = Área útil × R$/m² | Ref: alíquota 0,5–1,5% a.a. | Cond. R$5–12/m²/mês</p>
                             <div class="flex justify-between items-center mt-2 pt-2 border-t border-amber-200">
-                                <div class="text-[9px] text-amber-700 font-bold">
-                                    IPTU: <span id="iptuEstimado" class="font-black">R$ 0,00</span>/mês &nbsp;+&nbsp;
-                                    Cond.: <span id="condominioEstimado" class="font-black">R$ 0,00</span>/mês
-                                </div>
+                                <div class="text-[9px] text-amber-700 font-bold">IPTU: <span id="iptuEstimado" class="font-black">R$ 0,00</span>/mês &nbsp;+&nbsp; Cond.: <span id="condominioEstimado" class="font-black">R$ 0,00</span>/mês</div>
                             </div>
                         </div>
-
-                        <!-- Modo Manual -->
                         <div id="divCarregamentoManual" class="hidden">
-                            <div class="input-group !mb-0">
-                                <label>Total IPTU + Condomínio + Outros (R$/mês)</label>
-                                <input type="number" id="carregamentoManualTotal" value="0" step="50" min="0" class="border-amber-300 bg-white font-bold" oninput="calcular()">
-                            </div>
+                            <div class="input-group !mb-0"><label>Total IPTU + Condomínio (R$/mês)</label><input type="number" id="carregamentoManualTotal" value="0" step="50" min="0" class="border-amber-300 bg-white font-bold" oninput="calcular()"></div>
                         </div>
-
-                        <!-- Total calculado (ambos os modos) -->
                         <div class="flex justify-between items-center mt-2 pt-2 border-t border-amber-300">
                             <span class="text-[9px] font-black text-amber-700 uppercase tracking-wider">Total calculado (R$)</span>
                             <span id="carregamentoTotalDisplay" class="text-sm font-black text-amber-800">R$ 0,00</span>
@@ -370,6 +311,38 @@
                     <p class="text-[10px] text-slate-400 font-medium italic mt-2">A barra azul representa sua rentabilidade mensal. Para o investimento valer a pena, ela deve superar a TMA (sua meta) e, no mínimo, a Selic (custo de oportunidade sem risco).</p>
                 </div>
 
+                <div class="card overflow-hidden p-0 shadow-xl border-slate-200">
+                    <div class="bg-investor px-6 py-4">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-blue-300 italic mb-1">Qual o Lance Máximo para Bater Sua Meta?</p>
+                        <p class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Curva da Rentabilidade Mensal em Função do Lance Arrematado</p>
+                        <div class="mt-3 bg-white/10 rounded-xl px-4 py-2 inline-block">
+                            <p class="text-[9px] font-bold uppercase tracking-widest text-emerald-300">Lance-Teto p/ sua TMA</p>
+                            <p class="text-2xl font-black text-emerald-400" id="lanceTetTmaDisplay">R$ —</p>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <div class="relative" style="height:260px"><canvas id="chartCurva"></canvas></div>
+                        <div class="grid grid-cols-3 gap-3 mt-4">
+                            <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 text-center">
+                                <p class="text-[9px] font-black uppercase tracking-widest text-emerald-700">Lance-Teto · TMA</p>
+                                <p class="text-lg font-black text-emerald-600 mt-1" id="curvaLanceTma">R$ —</p>
+                                <p class="text-[8px] text-emerald-500 mt-0.5">rende sua meta</p>
+                            </div>
+                            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-center">
+                                <p class="text-[9px] font-black uppercase tracking-widest text-amber-700">Lance-Teto · Selic</p>
+                                <p class="text-lg font-black text-amber-600 mt-1" id="curvaLanceSelic">R$ —</p>
+                                <p class="text-[8px] text-amber-500 mt-0.5">empata c/ renda fixa</p>
+                            </div>
+                            <div class="bg-rose-50 border border-rose-200 rounded-2xl p-3 text-center">
+                                <p class="text-[9px] font-black uppercase tracking-widest text-rose-700">Break-Even</p>
+                                <p class="text-lg font-black text-rose-600 mt-1" id="curvaBreakEven">R$ —</p>
+                                <p class="text-[8px] text-rose-500 mt-0.5">lucro zero</p>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-slate-400 italic mt-4 leading-relaxed">A curva mostra como sua rentabilidade mensal cai conforme você sobe o lance. A linha pontilhada marca o <strong class="text-emerald-600 not-italic">lance máximo que ainda entrega sua TMA</strong>. A bolinha azul é o seu lance atual.</p>
+                    </div>
+                </div>
+
                 <div class="card overflow-hidden p-0 border-slate-300 shadow-lg">
                     <div class="bg-slate-900 p-5 flex justify-between items-center text-white font-bold uppercase text-[10px] tracking-widest italic">Análise Dimensional do Fluxo de Caixa</div>
                     <div class="p-2 overflow-x-auto">
@@ -385,8 +358,8 @@
                                 <tr class="bg-slate-50/60 italic"><td id="descDoc">ITBI (3%) + Escritura (1%) + Registro (1%)</td><td class="text-right" id="tabDoc">-</td><td class="text-right" id="pDoc">-</td></tr>
                                 <tr class="bg-slate-50/60 italic"><td>Intervenções / CapEx Reforma</td><td class="text-right" id="tabReforma">-</td><td class="text-right" id="pReforma">-</td></tr>
                                 <tr class="bg-slate-50/60 italic"><td>Assessoria Jurídica Especializada</td><td class="text-right" id="tabAdvogado">-</td><td class="text-right" id="pAdvogado">-</td></tr>
-                                <tr class="bg-amber-50/50 font-semibold text-amber-900"><td id="descIptuCarregamento">IPTU — Carregamento (0 meses)</td><td class="text-right" id="tabIptuCarregamento">-</td><td class="text-right" id="pIptuCarregamento">-</td></tr>
-                                <tr class="bg-amber-50/50 font-semibold text-amber-900"><td id="descCondCarregamento">Condomínio + Outros — Carregamento (0 meses)</td><td class="text-right" id="tabCondCarregamento">-</td><td class="text-right" id="pCondCarregamento">-</td></tr>
+                                <tr id="rowIptuCarreg" class="bg-amber-50/50 font-semibold text-amber-900"><td id="descIptuCarregamento">IPTU — Carregamento</td><td class="text-right" id="tabIptuCarregamento">-</td><td class="text-right" id="pIptuCarregamento">-</td></tr>
+                                <tr class="bg-amber-50/50 font-semibold text-amber-900"><td id="descCondCarregamento">Condomínio — Carregamento</td><td class="text-right" id="tabCondCarregamento">-</td><td class="text-right" id="pCondCarregamento">-</td></tr>
                                 <tr class="bg-slate-100 font-bold text-slate-800"><td>= TOTAL DESEMBOLSADO (CAPITAL INVESTIDO)</td><td class="text-right" id="tabInvestido">-</td><td class="text-right" id="pInvestido">-</td></tr>
                                 <tr><td colspan="3" class="!p-2 !pt-3 text-[9px] font-black text-blue-600 uppercase tracking-widest">▸ Liquidação na venda (descontado direto da transação)</td></tr>
                                 <tr class="highlight-fin"><td>SALDO DEVEDOR QUITADO NA VENDA</td><td class="text-right" id="tabSaldoDevedor">-</td><td class="text-right" id="pSaldoDevedor">-</td></tr>
@@ -427,7 +400,7 @@
             </div>
         </div>
 
-        <div id="secaoMemorial" class="max-w-7xl mx-auto mt-12 mb-20 bg-white border border-slate-200 rounded-[3rem] shadow-sm font-sans overflow-hidden">
+        <div class="max-w-7xl mx-auto mt-12 mb-20 bg-white border border-slate-200 rounded-[3rem] shadow-sm font-sans overflow-hidden">
 
             <!-- Cabeçalho -->
             <div class="bg-slate-900 px-10 py-8 flex items-center gap-5">
@@ -590,6 +563,568 @@
         let chartP = null;
         Chart.register(ChartDataLabels);
 
+        function abreviarValor(v) {
+            if (v >= 1000000) return 'R$ ' + (v/1000000).toFixed(2).replace('.',',') + 'M';
+            if (v >= 1000) return 'R$ ' + Math.round(v/1000) + 'k';
+            return 'R$ ' + v;
+        }
+
+        let _setaTimer = null, _setaInterval = null;
+        function iniciarSeta(dir) {
+            moverSeta(dir);
+            _setaTimer = setTimeout(() => {
+                let velocidade = 1000, ticks = 0;
+                _setaInterval = setInterval(() => {
+                    ticks++;
+                    if (ticks > 20) velocidade = 10000;
+                    else if (ticks > 10) velocidade = 5000;
+                    else velocidade = 1000;
+                    moverSeta(dir, velocidade);
+                }, 80);
+            }, 400);
+        }
+        function moverSeta(dir, passo) {
+            const slider = document.getElementById('lanceSlider');
+            const novo = Math.max(0, Math.min(parseFloat(slider.max), (parseFloat(slider.value)||0) + dir*(passo||1000)));
+            slider.value = novo; syncLance(novo);
+        }
+        function pararSeta() { clearTimeout(_setaTimer); clearInterval(_setaInterval); _setaTimer=null; _setaInterval=null; }
+
+        function detectarPctAtivo() {
+            const lance = parseFloat(document.getElementById('lanceMinimo').value)||0;
+            const entrada = parseFloat(document.getElementById('entradaSinal').value)||0;
+            const pct = lance > 0 ? Math.round((entrada/lance)*100) : -1;
+            atualizarBotoesPct([10,20,30,40,50,60,70,80,90,100].includes(pct) ? pct : null);
+        }
+        function setEntradaPct(pct) {
+            const lance = parseFloat(document.getElementById('lanceMinimo').value)||0;
+            document.getElementById('entradaSinal').value = (lance*pct/100).toFixed(2);
+            atualizarBotoesPct(pct); calcular();
+        }
+        function atualizarBotoesPct(pctAtivo) {
+            [10,20,30,40,50,60,70,80,90,100].forEach(p => {
+                const btn = document.getElementById('btnPct'+p);
+                if (btn) btn.classList.toggle('ativo', p===pctAtivo);
+            });
+        }
+        function atualizarSliderGradient(slider) {
+            const pct = ((parseFloat(slider.value)-parseFloat(slider.min))/(parseFloat(slider.max)-parseFloat(slider.min)))*100;
+            slider.style.background = `linear-gradient(to right, #2563eb ${pct}%, #e2e8f0 ${pct}%)`;
+        }
+        function syncLance(val) {
+            const v = parseFloat(val);
+            document.getElementById('lanceMinimo').value = v;
+            document.getElementById('sliderLabel').innerText = abreviarValor(v);
+            atualizarSliderGradient(document.getElementById('lanceSlider'));
+            detectarPctAtivo(); calcular();
+        }
+        function syncSlider(val) {
+            const v = parseFloat(val)||0;
+            const slider = document.getElementById('lanceSlider');
+            if (v > parseFloat(slider.max)) slider.max = Math.ceil(v/100000)*100000;
+            slider.value = v;
+            document.getElementById('sliderLabel').innerText = abreviarValor(v);
+            atualizarSliderGradient(slider); detectarPctAtivo();
+        }
+
+        function setModoCarregamento(modo) {
+            const isEstimar = (modo === 'estimar');
+            document.getElementById('divCarregamentoEstimar').classList.toggle('hidden', !isEstimar);
+            document.getElementById('divCarregamentoManual').classList.toggle('hidden', isEstimar);
+            document.getElementById('btnCarregamentoEstimar').className = 'px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wide border transition-all ' + (isEstimar ? 'bg-amber-500 text-white border-amber-500' : 'bg-white text-slate-500 border-slate-200');
+            document.getElementById('btnCarregamentoManual').className = 'px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wide border transition-all ' + (!isEstimar ? 'bg-amber-500 text-white border-amber-500' : 'bg-white text-slate-500 border-slate-200');
+            calcular();
+        }
+
+        function toggleCaixaField() {
+            const ativo = (document.getElementById('isCaixa').value === 'SIM');
+            document.getElementById('divCondominio').style.display = ativo ? 'block' : 'none';
+            document.getElementById('rowCondominio').style.display = ativo ? '' : 'none';
+        }
+
+        function taxaJurosFinanciamento(pv, pmt, n) {
+            if (pv<=0||pmt<=0||n<=0||pmt*n<=pv) return 0;
+            const f = i => pmt*(1-Math.pow(1+i,-n))/i - pv;
+            let lo=0.0000001, hi=1.0;
+            for (let k=0; k<200; k++) {
+                const mid=(lo+hi)/2, val=f(mid);
+                if (Math.abs(val)<0.01) return mid;
+                if (val>0) lo=mid; else hi=mid;
+            }
+            return (lo+hi)/2;
+        }
+
+        function saldoDevedorPrice(pv, pmt, i, meses) {
+            if (pv<=0) return 0;
+            if (i<=0) return Math.max(0, pv - pmt*meses);
+            const f = Math.pow(1+i, meses);
+            return Math.max(0, pv*f - pmt*(f-1)/i);
+        }
+
+        function calcularTIR(fluxo) {
+            let taxa = 0.02;
+            for (let iter=0; iter<100; iter++) {
+                let vpl=0, dVpl=0;
+                for (let t=0; t<fluxo.length; t++) {
+                    const fator = Math.pow(1+taxa, t);
+                    vpl += fluxo[t]/fator;
+                    if (t>0) dVpl -= t*fluxo[t]/(fator*(1+taxa));
+                }
+                if (Math.abs(dVpl)<1e-9) break;
+                const novo = taxa - vpl/dVpl;
+                if (!isFinite(novo)) break;
+                if (Math.abs(novo-taxa)<1e-7) { taxa=novo; break; }
+                taxa = novo;
+                if (taxa<=-0.9999) taxa=-0.9999;
+            }
+            return taxa * 100; // returns %
+        }
+
+        // Versão rápida para plotagem da curva (30 iter)
+        function calcularTIRFast(fluxo) {
+            let taxa = 0.02;
+            for (let iter=0; iter<30; iter++) {
+                let vpl=0, dVpl=0;
+                for (let t=0; t<fluxo.length; t++) {
+                    const fator = Math.pow(1+taxa, t);
+                    vpl += fluxo[t]/fator;
+                    if (t>0) dVpl -= t*fluxo[t]/(fator*(1+taxa));
+                }
+                if (Math.abs(dVpl)<1e-9) break;
+                const novo = taxa - vpl/dVpl;
+                if (!isFinite(novo)) break;
+                if (Math.abs(novo-taxa)<1e-5) { taxa=novo; break; }
+                taxa = novo;
+                if (taxa<=-0.9999) taxa=-0.9999;
+            }
+            return taxa * 100; // returns %
+        }
+
+        function calcular() {
+            try {
+                // ── INPUTS ───────────────────────────────────────────────────────────
+                const lanceMinimo       = parseFloat(document.getElementById('lanceMinimo').value) || 0;
+                const entradaSinal      = parseFloat(document.getElementById('entradaSinal').value) || 0;
+                const mesesCarregamento = parseFloat(document.getElementById('mesesCarregamento').value) || 1;
+                const prazoTotalFinanc  = parseFloat(document.getElementById('prazoTotalFinanc').value) || 420;
+                const jurosAaStr        = document.getElementById('jurosFinancAa').value.trim();
+                const jurosFinancAaInput = parseFloat(jurosAaStr);
+                const jurosPreenchido   = jurosAaStr !== '' && !isNaN(jurosFinancAaInput);
+
+                const saldoDevedorInicial = Math.max(0, lanceMinimo - entradaSinal);
+
+                // Taxa mensal do financiamento
+                let iMensalFinanc = 0;
+                if (jurosPreenchido) {
+                    iMensalFinanc = Math.pow(1 + jurosFinancAaInput/100, 1/12) - 1;
+                } else {
+                    const pmtManual = parseFloat(document.getElementById('valorParcela').value) || 0;
+                    iMensalFinanc = taxaJurosFinanciamento(saldoDevedorInicial, pmtManual, prazoTotalFinanc);
+                }
+
+                // Parcela Price
+                let valorParcela;
+                if (saldoDevedorInicial <= 0) {
+                    // Sem financiamento: entrada cobre 100% do lance
+                    valorParcela = 0;
+                    document.getElementById('divParcelaManual').style.display = 'none';
+                    document.getElementById('divParcelaAuto').classList.add('hidden');
+                } else if (jurosPreenchido && prazoTotalFinanc > 0) {
+                    valorParcela = iMensalFinanc > 0
+                        ? saldoDevedorInicial * iMensalFinanc / (1 - Math.pow(1+iMensalFinanc, -prazoTotalFinanc))
+                        : saldoDevedorInicial / prazoTotalFinanc;
+                    document.getElementById('divParcelaManual').style.display = 'none';
+                    document.getElementById('divParcelaAuto').classList.remove('hidden');
+                    const fc2 = v => v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+                    document.getElementById('parcelaAutoValor').innerText = fc2(valorParcela);
+                    document.getElementById('parcelaAutoMeses').innerText = Math.round(mesesCarregamento);
+                    document.getElementById('parcelaAutoTotal').innerText = fc2(valorParcela * mesesCarregamento);
+                } else {
+                    document.getElementById('divParcelaManual').style.display = '';
+                    document.getElementById('divParcelaAuto').classList.add('hidden');
+                    valorParcela = parseFloat(document.getElementById('valorParcela').value) || 0;
+                }
+
+                // Custos operacionais
+                const pItbi      = parseFloat(document.getElementById('pItbi').value) || 0;
+                const pEscritura = parseFloat(document.getElementById('pEscritura').value) || 0;
+                const pRegistro  = parseFloat(document.getElementById('pRegistro').value) || 0;
+                const custoReforma   = parseFloat(document.getElementById('custoReforma').value) || 0;
+                const custoAdvogado  = parseFloat(document.getElementById('custoAdvogado').value) || 0;
+                const tma            = parseFloat(document.getElementById('tmaInput').value) || 0;
+                const selicAnual     = parseFloat(document.getElementById('selicAnual').value) / 100 || 0;
+                const isCaixa        = document.getElementById('isCaixa').value;
+                const vAvaliacao     = parseFloat(document.getElementById('vAvaliacao').value) || 0;
+                const pComissaoLeil  = parseFloat(document.getElementById('pComissaoLeiloeiro').value) / 100 || 0;
+                const baseTaxaLeil   = document.getElementById('baseTaxaLeiloeiro').value;
+                const vVenda         = parseFloat(document.getElementById('vendaAlvo').value) || 0;
+                const pComissao      = parseFloat(document.getElementById('pComissao').value) / 100 || 0;
+                const regime         = document.getElementById('regimeTributario').value;
+
+                // Carregamento IPTU + Condomínio
+                const modoCarreg = document.getElementById('divCarregamentoEstimar').classList.contains('hidden') ? 'manual' : 'estimar';
+                let iptuMensal = 0, condMensal = 0, carrMensalTotal = 0;
+                if (modoCarreg === 'estimar') {
+                    const alqIptu  = parseFloat(document.getElementById('aliquotaIptu').value) || 0;
+                    const condM2   = parseFloat(document.getElementById('condominioM2').value) || 0;
+                    const areaUtil = parseFloat(document.getElementById('areaUtil').value) || 0;
+                    iptuMensal = lanceMinimo * (alqIptu/100) / 12;
+                    condMensal = areaUtil * condM2;
+                    carrMensalTotal = iptuMensal + condMensal;
+                } else {
+                    carrMensalTotal = parseFloat(document.getElementById('carregamentoManualTotal').value) || 0;
+                }
+                const custoIptuTotal = iptuMensal * mesesCarregamento;
+                const custoCond      = modoCarreg === 'estimar' ? condMensal * mesesCarregamento : carrMensalTotal * mesesCarregamento;
+
+                // ── CÁLCULOS FINANCEIROS ──────────────────────────────────────────────
+                const custoDocFinal   = lanceMinimo * (pItbi+pEscritura+pRegistro) / 100;
+                const baseComissao    = baseTaxaLeil === 'AVALIACAO' ? vAvaliacao : lanceMinimo;
+                const custoTaxaCaixa  = baseComissao * pComissaoLeil;
+
+                let custoCondominio = 0;
+                if (isCaixa === 'SIM') {
+                    const pCond = parseFloat(document.getElementById('pCondominio').value) || 0;
+                    custoCondominio = vAvaliacao * (Math.min(pCond,10)/100);
+                    document.getElementById('condominioValorDisplay').value =
+                        custoCondominio.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+                }
+
+                const totalParcelasPagas       = valorParcela * mesesCarregamento;
+                const saldoDevedorParaQuitacao = saldoDevedorPrice(saldoDevedorInicial, valorParcela, iMensalFinanc, mesesCarregamento);
+                const investimentoDesembolsado = entradaSinal + totalParcelasPagas + custoTaxaCaixa + custoCondominio + custoDocFinal + custoReforma + custoAdvogado + custoIptuTotal + custoCond;
+                const comissaoVenda = vVenda * pComissao;
+
+                let impFinal = 0;
+                if (regime === 'PJ') {
+                    impFinal = vVenda * 0.04;
+                } else if (regime === 'PF') {
+                    const baseContabil = lanceMinimo + custoTaxaCaixa + custoCondominio + custoDocFinal + custoReforma + custoAdvogado;
+                    impFinal = Math.max(0, vVenda - baseContabil - comissaoVenda) * 0.15;
+                }
+
+                const lucroLiq = vVenda - saldoDevedorParaQuitacao - comissaoVenda - impFinal - investimentoDesembolsado;
+                const roeFinanc = investimentoDesembolsado > 0 ? (lucroLiq/investimentoDesembolsado)*100 : 0;
+                const moc = investimentoDesembolsado > 0 ? (lucroLiq+investimentoDesembolsado)/investimentoDesembolsado : 0;
+
+                // TIR principal
+                const custosIniciais    = entradaSinal + custoTaxaCaixa + custoCondominio + custoDocFinal + custoReforma + custoAdvogado;
+                const recebimentoVenda  = vVenda - saldoDevedorParaQuitacao - comissaoVenda - impFinal;
+                const m = Math.max(1, Math.round(mesesCarregamento));
+                const fluxo = [-custosIniciais];
+                for (let t=1; t<=m; t++) fluxo.push(t<m ? -valorParcela : recebimentoVenda - valorParcela);
+
+                let tirM = 0;
+                if (investimentoDesembolsado > 0 && lucroLiq + investimentoDesembolsado > 0) {
+                    tirM = calcularTIR(fluxo);
+                    if (!isFinite(tirM)) tirM = 0;
+                }
+                const tirAa  = (Math.pow(1+tirM/100, 12)-1)*100;
+                const sMen   = (Math.pow(1+selicAnual, 1/12)-1)*100;
+                const custoTotalOp = lanceMinimo + custoTaxaCaixa + custoCondominio + custoDocFinal + custoReforma + custoAdvogado + custoIptuTotal + custoCond + comissaoVenda + impFinal;
+                const roiNominal   = custoTotalOp > 0 ? ((vVenda-custoTotalOp)/custoTotalOp)*100 : 0;
+
+                // ── FORMATADORES ──────────────────────────────────────────────────────
+                const f  = v => v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+                const p  = v => (vVenda>0 ? (v/vVenda*100).toFixed(1) : '0.0')+'%';
+                const fc = v => v ? v.toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0}) : 'R$ —';
+
+                // ── KPIs ──────────────────────────────────────────────────────────────
+                document.getElementById('resMoc').innerText    = moc.toFixed(2)+'x';
+                document.getElementById('resTir').innerText    = tirM.toFixed(2)+'%';
+                document.getElementById('resTirAa').innerText  = tirAa.toFixed(1)+'%';
+                document.getElementById('resLucroAbs').innerText = f(lucroLiq);
+                document.getElementById('resRoe').innerText    = roeFinanc.toFixed(1)+'%';
+                document.getElementById('resRoi100').innerText = roiNominal.toFixed(1)+'%';
+                const diff = roeFinanc - roiNominal;
+                document.getElementById('resDiff').innerText   = (diff>=0?'+':'')+diff.toFixed(1)+'%';
+                document.getElementById('resDiff').className   = 'text-xl font-black leading-none '+(diff>=0?'text-emerald-400':'text-rose-400');
+
+                document.getElementById('selicMensal').innerText  = sMen.toFixed(2)+'%';
+                document.getElementById('statusTirVal').innerText = tirM.toFixed(2)+'% a.m.';
+                document.getElementById('tmaMarkerVal').innerText = tma.toFixed(1)+'%';
+
+                // ── TABELA ────────────────────────────────────────────────────────────
+                document.getElementById('tabReceita').innerText = f(vVenda);
+                document.getElementById('tabEntrada').innerText = f(entradaSinal);
+                document.getElementById('pEntrada').innerText   = p(entradaSinal);
+                document.getElementById('descParcelas').innerText = `Parcelas do Financiamento — ${m}x de ${f(valorParcela)}`;
+                document.getElementById('tabParcelas').innerText = f(totalParcelasPagas);
+                document.getElementById('pParcelas').innerText  = p(totalParcelasPagas);
+
+                const baseTxt = baseTaxaLeil==='AVALIACAO' ? 'Avaliação' : 'Lance';
+                document.getElementById('descTaxaCaixa').innerText = `Comissão Leiloeiro (${(pComissaoLeil*100).toFixed(1)}% s/ ${baseTxt})`;
+                document.getElementById('tabTaxaCaixa').innerText = f(custoTaxaCaixa);
+                document.getElementById('pTaxaCaixa').innerText   = p(custoTaxaCaixa);
+
+                if (isCaixa==='SIM') {
+                    const pCond = parseFloat(document.getElementById('pCondominio').value)||0;
+                    document.getElementById('descCondominio').innerText = `Dívida de Condomínio (${pCond}% s/ Avaliação — máx. 10%)`;
+                    document.getElementById('tabCondominio').innerText  = f(custoCondominio);
+                    document.getElementById('pCondominio2').innerText   = p(custoCondominio);
+                } else {
+                    document.getElementById('tabCondominio').innerText  = f(0);
+                    document.getElementById('pCondominio2').innerText   = '0.0%';
+                }
+
+                document.getElementById('docAutoValor').innerText = f(custoDocFinal);
+                const pTotal = pItbi+pEscritura+pRegistro;
+                document.getElementById('descDoc').innerText = `ITBI (${pItbi}%) + Escritura (${pEscritura}%) + Registro (${pRegistro}%) = ${pTotal.toFixed(1)}% s/ Lance`;
+                document.getElementById('tabDoc').innerText    = f(custoDocFinal);
+                document.getElementById('pDoc').innerText      = p(custoDocFinal);
+                document.getElementById('tabReforma').innerText = f(custoReforma);
+                document.getElementById('pReforma').innerText   = p(custoReforma);
+                document.getElementById('tabAdvogado').innerText = f(custoAdvogado);
+                document.getElementById('pAdvogado').innerText  = p(custoAdvogado);
+
+                // Linhas de carregamento IPTU e Condomínio
+                const mCarg = Math.max(1, Math.round(mesesCarregamento));
+                const rowIptu = document.getElementById('rowIptuCarreg');
+                if (rowIptu) rowIptu.style.display = (modoCarreg==='manual') ? 'none' : '';
+                document.getElementById('descIptuCarregamento').innerText = modoCarreg==='estimar'
+                    ? `IPTU — ${mCarg}x de ${f(iptuMensal)}/mês`
+                    : `IPTU — incluído no total manual`;
+                document.getElementById('tabIptuCarregamento').innerText = f(custoIptuTotal);
+                document.getElementById('pIptuCarregamento').innerText   = p(custoIptuTotal);
+
+                const condDesc = modoCarreg==='estimar'
+                    ? `Condomínio — ${mCarg}x de ${f(condMensal)}/mês`
+                    : `Condomínio + IPTU — ${mCarg}x de ${f(carrMensalTotal)}/mês`;
+                document.getElementById('descCondCarregamento').innerText = condDesc;
+                document.getElementById('tabCondCarregamento').innerText  = f(custoCond);
+                document.getElementById('pCondCarregamento').innerText    = p(custoCond);
+
+                document.getElementById('tabInvestido').innerText = f(investimentoDesembolsado);
+                document.getElementById('pInvestido').innerText   = p(investimentoDesembolsado);
+                document.getElementById('tabSaldoDevedor').innerText = f(saldoDevedorParaQuitacao);
+                document.getElementById('pSaldoDevedor').innerText   = p(saldoDevedorParaQuitacao);
+                document.getElementById('tabCom').innerText  = f(comissaoVenda);
+                document.getElementById('pCom').innerText    = p(comissaoVenda);
+                document.getElementById('tabImposto').innerText = f(impFinal);
+                document.getElementById('pImposto').innerText   = p(impFinal);
+                document.getElementById('tabLucro').innerText   = f(lucroLiq);
+                document.getElementById('pLucro').innerText     = p(lucroLiq);
+                document.getElementById('descImposto').innerText = regime==='PJ' ? 'Imposto (RET 4%)' : regime==='PF' ? 'Imposto (PF 15%)' : 'Imposto (Isento)';
+
+                // Preview carregamento
+                if (modoCarreg==='estimar') {
+                    document.getElementById('iptuEstimado').innerText       = f(iptuMensal);
+                    document.getElementById('condominioEstimado').innerText = f(condMensal);
+                    document.getElementById('carregamentoTotalDisplay').innerText = f(carrMensalTotal * mesesCarregamento);
+                    document.getElementById('carregamentoFormula').innerText = `IPTU ${f(iptuMensal)} + Cond. ${f(condMensal)} = ${f(carrMensalTotal)}/mês × ${mCarg} meses`;
+                } else {
+                    document.getElementById('carregamentoTotalDisplay').innerText = f(carrMensalTotal * mesesCarregamento);
+                    document.getElementById('carregamentoFormula').innerText = `${f(carrMensalTotal)}/mês × ${mCarg} meses`;
+                }
+
+                // ── VEREDITO E FARÓIS ─────────────────────────────────────────────────
+                const lucrativo = lucroLiq > 0;
+                let nivel = (lucrativo && tirM>tma) ? 'bom' : (!lucrativo || tirM<sMen) ? 'ruim' : 'medio';
+
+                const card  = document.getElementById('statusCard');
+                const stxt  = document.getElementById('statusText');
+                const vCard = document.getElementById('vereditoCard');
+                const vIcon = document.getElementById('vereditoIcon');
+                const vText = document.getElementById('vereditoText');
+                const vSub  = document.getElementById('vereditoSub');
+                const vRent = document.getElementById('vereditoRent');
+                const vRentSub = document.getElementById('vereditoRentSub');
+
+                card.className = 'card transition-all duration-500 border-l-8 p-6 shadow-xl ' + (nivel==='bom'?'border-emerald-500 bg-emerald-50':nivel==='ruim'?'border-rose-500 bg-rose-50':'border-amber-500 bg-amber-50');
+                stxt.innerText = nivel==='bom' ? 'Supera sua Meta (TMA)' : nivel==='ruim' ? (tirM<sMen?'Abaixo do Custo de Oportunidade':'Operação no Prejuízo') : 'Retorno Marginal / Risco Moderado';
+
+                vRent.innerText   = tirAa.toFixed(1)+'% a.a.';
+                vRentSub.innerText = `${f(lucroLiq)} em ${m} ${m===1?'mês':'meses'}`;
+                if (nivel==='bom') {
+                    vCard.className = 'rounded-3xl p-7 shadow-xl border-l-8 transition-all duration-500 bg-slate-900 border-emerald-500 text-white';
+                    vIcon.className = 'w-9 h-9 rounded-full flex items-center justify-center text-lg font-black bg-emerald-500 text-white';
+                    vIcon.innerText = '✓'; vText.innerText = 'Investimento Rentável';
+                    vSub.innerText = `Rende ${tirM.toFixed(2)}% ao mês, acima da sua meta de ${tma.toFixed(1)}% e da Selic de ${sMen.toFixed(2)}%. Cada R$ 1 investido vira R$ ${moc.toFixed(2)}.`;
+                    vRent.className = 'text-4xl font-black text-emerald-400 leading-none';
+                } else if (nivel==='ruim') {
+                    vCard.className = 'rounded-3xl p-7 shadow-xl border-l-8 transition-all duration-500 bg-slate-900 border-rose-500 text-white';
+                    vIcon.className = 'w-9 h-9 rounded-full flex items-center justify-center text-lg font-black bg-rose-500 text-white';
+                    vIcon.innerText = '✕'; vText.innerText = lucrativo ? 'Rentável, mas Não Compensa' : 'Investimento no Prejuízo';
+                    vSub.innerText = lucrativo ? `Rende ${tirM.toFixed(2)}% ao mês, abaixo da Selic de ${sMen.toFixed(2)}%. O retorno não paga o risco.` : `A operação gera prejuízo de ${f(Math.abs(lucroLiq))}. Revise lance, custos ou valor de venda.`;
+                    vRent.className = 'text-4xl font-black text-rose-400 leading-none';
+                } else {
+                    vCard.className = 'rounded-3xl p-7 shadow-xl border-l-8 transition-all duration-500 bg-slate-900 border-amber-500 text-white';
+                    vIcon.className = 'w-9 h-9 rounded-full flex items-center justify-center text-lg font-black bg-amber-500 text-white';
+                    vIcon.innerText = '!'; vText.innerText = 'Rentabilidade Marginal';
+                    vSub.innerText = `Rende ${tirM.toFixed(2)}% ao mês: supera a Selic (${sMen.toFixed(2)}%) mas fica abaixo da sua meta de ${tma.toFixed(1)}%. Avalie o risco.`;
+                    vRent.className = 'text-4xl font-black text-amber-400 leading-none';
+                }
+
+                // Barra de retorno
+                const escalaMax = Math.max(tirM, tma, sMen, 0.1) * 1.25;
+                const pos = v => Math.max(0, Math.min(100, (v/escalaMax)*100));
+                document.getElementById('tirBar').style.width         = pos(Math.max(0,tirM))+'%';
+                document.getElementById('selicMarker').style.left     = pos(sMen)+'%';
+                document.getElementById('tmaMarker').style.left       = pos(tma)+'%';
+
+                // ── GRÁFICO DONUT ─────────────────────────────────────────────────────
+                const ctx = document.getElementById('chartInvestor').getContext('2d');
+                if (chartP) chartP.destroy();
+                chartP = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Entrada/Sinal','Parcelas Pagas','Comissão Leiloeiro','Dívida Condomínio','Outros Custos (Capex/Doc)'],
+                        datasets: [{ data: [entradaSinal, totalParcelasPagas, custoTaxaCaixa, custoCondominio, custoDocFinal+custoAdvogado+custoReforma], backgroundColor: ['#2563eb','#93c5fd','#f59e0b','#fb923c','#f43f5e'], borderWidth: 0 }]
+                    },
+                    options: {
+                        maintainAspectRatio: false, cutout: '75%',
+                        plugins: {
+                            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10, weight: '600' } } },
+                            datalabels: { color: '#fff', font: { weight: 'bold', size: 10 },
+                                display: ctx => ctx.dataset.data[ctx.dataIndex] > 0,
+                                formatter: (v, ctx) => { let s=0; ctx.chart.data.datasets[0].data.forEach(d=>s+=d); return s>0?(v*100/s).toFixed(1)+'%':'0%'; }
+                            }
+                        }
+                    }
+                });
+
+                // ── CURVA DE RENTABILIDADE (deferred) ────────────────────────────────
+                requestAnimationFrame(function() {
+                    const vendaFixa   = vVenda;
+                    const pEntPct     = lanceMinimo > 0 ? entradaSinal/lanceMinimo : 1;
+                    const nPts        = 40;
+                    const lMin        = Math.max(5000, vendaFixa*0.05);
+                    const lMax        = vendaFixa * 1.1;
+                    if (lMax <= lMin) return;
+                    const step        = (lMax-lMin)/nPts;
+
+                    function tirDeLance(lance) {
+                        const ent  = lance * pEntPct;
+                        const saldo = Math.max(0, lance - ent);
+                        const docH  = lance*(pItbi+pEscritura+pRegistro)/100;
+                        const comH  = baseTaxaLeil==='AVALIACAO' ? vAvaliacao*pComissaoLeil : lance*pComissaoLeil;
+                        const condH = isCaixa==='SIM' ? vAvaliacao*((parseFloat(document.getElementById('pCondominio').value)||0)/100) : 0;
+                        let iptuH=0, condCarrH=0;
+                        if (modoCarreg==='estimar') {
+                            const alq = parseFloat(document.getElementById('aliquotaIptu').value)||0;
+                            iptuH    = lance*(alq/100)/12*mesesCarregamento;
+                            condCarrH = condMensal*mesesCarregamento;
+                        } else { condCarrH = carrMensalTotal*mesesCarregamento; }
+                        const cvH = vendaFixa*pComissao;
+                        let impH=0;
+                        if (regime==='PF')      impH = Math.max(0,(vendaFixa-lance))*0.15;
+                        else if (regime==='PJ') impH = vendaFixa*0.04;
+                        const nP = Math.max(1, Math.round(mesesCarregamento));
+                        let pmt=0;
+                        if (saldo>0 && prazoTotalFinanc>0 && iMensalFinanc>0)
+                            pmt = saldo*iMensalFinanc/(1-Math.pow(1+iMensalFinanc,-prazoTotalFinanc));
+                        else if (saldo>0 && prazoTotalFinanc>0)
+                            pmt = saldo/prazoTotalFinanc;
+                        const sdH = saldo>0 && iMensalFinanc>0
+                            ? Math.max(0, saldo*Math.pow(1+iMensalFinanc,nP) - pmt*(Math.pow(1+iMensalFinanc,nP)-1)/iMensalFinanc)
+                            : Math.max(0, saldo - pmt*nP);
+                        const t0 = -(ent + comH + condH + docH + custoReforma + custoAdvogado + iptuH + condCarrH);
+                        const recv = vendaFixa - cvH - impH - sdH;
+                        const fl = [t0];
+                        for (let k=1; k<=nP; k++) fl.push(k<nP ? -pmt : recv - pmt + pmt*nP);
+                        return calcularTIRFast(fl); // returns %
+                    }
+
+                    const labels=[], dados=[];
+                    for (let i=0; i<=nPts; i++) {
+                        const lance = lMin + i*step;
+                        const t = tirDeLance(lance);
+                        labels.push(lance);
+                        dados.push(isFinite(t) ? parseFloat(t.toFixed(3)) : null);
+                    }
+
+                    function lanceTeto(benchPct) {
+                        let lo=lMin, hi=lMax, result=null;
+                        for (let i=0; i<30; i++) {
+                            const mid=(lo+hi)/2, t=tirDeLance(mid);
+                            if (t>=benchPct) { result=mid; lo=mid; } else hi=mid;
+                        }
+                        return result;
+                    }
+
+                    const ltTma  = lanceTeto(tma);
+                    const ltSel  = lanceTeto(sMen);
+                    const ltBe   = lanceTeto(0.001);
+
+                    document.getElementById('lanceTetTmaDisplay').innerText = fc(ltTma);
+                    document.getElementById('curvaLanceTma').innerText      = fc(ltTma);
+                    document.getElementById('curvaLanceSelic').innerText    = fc(ltSel);
+                    document.getElementById('curvaBreakEven').innerText     = fc(ltBe);
+
+                    const ctxC = document.getElementById('chartCurva').getContext('2d');
+                    if (window._chartCurva) window._chartCurva.destroy();
+                    window._chartCurva = new Chart(ctxC, {
+                        type: 'line',
+                        data: { labels, datasets: [{
+                            label: 'TIR mensal (%)', data: dados,
+                            borderWidth: 2.5, pointRadius: 0, tension: 0.3,
+                            segment: { borderColor: ctx2 => (dados[ctx2.p0DataIndex]??-999)>=tma ? '#10b981' : '#f43f5e' },
+                            fill: false
+                        }]},
+                        options: {
+                            maintainAspectRatio: false, animation: { duration: 200 },
+                            scales: {
+                                x: { type:'linear', ticks: { callback: v=>'R$'+(v>=1000?(v/1000).toFixed(0)+'k':v), maxTicksLimit:8, font:{size:10} }, title:{display:true,text:'Valor do Lance (R$)',font:{size:11,weight:'600'}} },
+                                y: { ticks: { callback: v=>v.toFixed(1)+'%', font:{size:10} }, title:{display:true,text:'TIR mensal (%)',font:{size:11,weight:'600'}} }
+                            },
+                            plugins: {
+                                legend: {display:false}, datalabels: {display:false},
+                                tooltip: { callbacks: { title: items=>'Lance: '+fc(items[0].parsed.x), label: item=>'TIR: '+item.parsed.y.toFixed(2)+'% a.m.' } }
+                            }
+                        },
+                        plugins: [{
+                            id: 'refLines',
+                            afterDraw(chart) {
+                                const {ctx:c, scales:{x,y}} = chart;
+                                const hLine = (val, color, lbl) => {
+                                    if (val==null||!isFinite(val)) return;
+                                    const yp = y.getPixelForValue(val);
+                                    c.save(); c.setLineDash([6,4]); c.strokeStyle=color; c.lineWidth=1.5;
+                                    c.beginPath(); c.moveTo(x.left,yp); c.lineTo(x.right,yp); c.stroke();
+                                    c.fillStyle=color; c.font='bold 10px Inter,sans-serif'; c.fillText(lbl,x.left+6,yp-4); c.restore();
+                                };
+                                const vLine = (lance, color) => {
+                                    if (!lance||!isFinite(lance)) return;
+                                    const xp = x.getPixelForValue(lance);
+                                    c.save(); c.setLineDash([5,4]); c.strokeStyle=color; c.lineWidth=1.5;
+                                    c.beginPath(); c.moveTo(xp,y.top); c.lineTo(xp,y.bottom); c.stroke();
+                                    c.fillStyle=color; c.font='bold 10px Inter,sans-serif'; c.fillText('teto',xp+4,y.top+14); c.restore();
+                                };
+                                hLine(tma,  '#1e3a5f', `TMA ${tma.toFixed(1)}%`);
+                                hLine(sMen, '#d97706', `Selic ${sMen.toFixed(2)}%`);
+                                vLine(ltTma, '#10b981');
+                                // Ponto azul = lance atual
+                                const tirAtual = tirDeLance(lanceMinimo);
+                                if (isFinite(tirAtual) && lanceMinimo>=lMin && lanceMinimo<=lMax) {
+                                    const xp=x.getPixelForValue(lanceMinimo), yp=y.getPixelForValue(tirAtual);
+                                    c.save(); c.beginPath(); c.arc(xp,yp,6,0,Math.PI*2);
+                                    c.fillStyle='#2563eb'; c.fill(); c.strokeStyle='#fff'; c.lineWidth=2; c.stroke(); c.restore();
+                                }
+                            }
+                        }]
+                    });
+                });
+
+            } catch(e) { console.error('Erro em calcular():', e.message, e.stack); }
+        }
+
+        function exportarPDF() {
+            const orig = document.title;
+            const lance = parseFloat(document.getElementById('lanceMinimo').value||0).toLocaleString('pt-BR',{maximumFractionDigits:0});
+            const venda = parseFloat(document.getElementById('vendaAlvo').value||0).toLocaleString('pt-BR',{maximumFractionDigits:0});
+            document.title = `Leilão — Lance R$${lance} → Venda R$${venda}`;
+            window.print();
+            setTimeout(() => { document.title = orig; }, 2000);
+        }
+
+        window.addEventListener('load', () => {
+            toggleCaixaField();
+            syncSlider(document.getElementById('lanceMinimo').value);
+            detectarPctAtivo();
+            setTimeout(calcular, 100);
+        });
+    </script>
+
         // Formata número abreviado para o label do slider
         function abreviarValor(v) {
             if (v >= 1000000) return 'R$ ' + (v / 1000000).toFixed(2).replace('.', ',') + 'M';
@@ -675,25 +1210,6 @@
             document.getElementById('sliderLabel').innerText = abreviarValor(v);
             atualizarSliderGradient(slider);
             detectarPctAtivo();
-        }
-
-        function setModoCarregamento(modo) {
-            const divEstimar = document.getElementById('divCarregamentoEstimar');
-            const divManual = document.getElementById('divCarregamentoManual');
-            const btnEstimar = document.getElementById('btnCarregamentoEstimar');
-            const btnManual = document.getElementById('btnCarregamentoManual');
-            if (modo === 'estimar') {
-                divEstimar.classList.remove('hidden');
-                divManual.classList.add('hidden');
-                btnEstimar.className = 'px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wide border transition-all bg-amber-500 text-white border-amber-500';
-                btnManual.className = 'px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wide border transition-all bg-white text-slate-500 border-slate-200';
-            } else {
-                divEstimar.classList.add('hidden');
-                divManual.classList.remove('hidden');
-                btnEstimar.className = 'px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wide border transition-all bg-white text-slate-500 border-slate-200';
-                btnManual.className = 'px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wide border transition-all bg-amber-500 text-white border-amber-500';
-            }
-            calcular();
         }
 
         function toggleCaixaField() {
@@ -801,340 +1317,4 @@
 
                 const pItbi = parseFloat(document.getElementById('pItbi').value) || 0;
                 const pEscritura = parseFloat(document.getElementById('pEscritura').value) || 0;
-                const pRegistro = parseFloat(document.getElementById('pRegistro').value) || 0;
-                const custoReforma = parseFloat(document.getElementById('custoReforma').value) || 0;
-                const custoAdvogado = parseFloat(document.getElementById('custoAdvogado').value) || 0;
-
-                // Carregamento mensal: IPTU + Condomínio + Outros
-                const modoCarregamento = document.getElementById('divCarregamentoEstimar').classList.contains('hidden') ? 'manual' : 'estimar';
-                let iptuMensal = 0, condominioMensal = 0, carregamentoMensalTotal = 0;
-                if (modoCarregamento === 'estimar') {
-                    const aliquotaIptu = parseFloat(document.getElementById('aliquotaIptu').value) || 0;
-                    const condominioM2 = parseFloat(document.getElementById('condominioM2').value) || 0;
-                    const areaUtil = parseFloat(document.getElementById('areaUtil').value) || 0;
-                    iptuMensal = lanceMinimo * (aliquotaIptu / 100) / 12;
-                    condominioMensal = areaUtil * condominioM2;
-                    carregamentoMensalTotal = iptuMensal + condominioMensal;
-                } else {
-                    carregamentoMensalTotal = parseFloat(document.getElementById('carregamentoManualTotal').value) || 0;
-                    iptuMensal = 0;
-                    condominioMensal = 0;
-                }
-                const custoIptuTotal = iptuMensal * mesesCarregamento;
-                const custoCondCarregamento = (modoCarregamento === 'estimar') ? condominioMensal * mesesCarregamento : carregamentoMensalTotal * mesesCarregamento;
-                const vVenda = parseFloat(document.getElementById('vendaAlvo').value) || 0;
-                const pComissao = parseFloat(document.getElementById('pComissao').value) / 100 || 0;
-                const tma = parseFloat(document.getElementById('tmaInput').value) || 0;
-                const regime = document.getElementById('regimeTributario').value;
-                const selicAnual = parseFloat(document.getElementById('selicAnual').value) / 100 || 0;
-
-                const isCaixa = document.getElementById('isCaixa').value;
-                const vAvaliacao = parseFloat(document.getElementById('vAvaliacao').value) || 0;
-                const pComissaoLeiloeiro = parseFloat(document.getElementById('pComissaoLeiloeiro').value) / 100 || 0;
-                const baseTaxaLeiloeiro = document.getElementById('baseTaxaLeiloeiro').value;
-
-                // ITBI + Escritura + Registro calculados automaticamente sobre o lance
-                const custoDocFinal = lanceMinimo * (pItbi + pEscritura + pRegistro) / 100;
-
-                // Comissão do leiloeiro: sempre aplicada, independente de ser leilão Caixa
-                const baseValorComissao = (baseTaxaLeiloeiro === "AVALIACAO") ? vAvaliacao : lanceMinimo;
-                const custoTaxaCaixa = baseValorComissao * pComissaoLeiloeiro;
-
-                // Dívida de condomínio: exclusiva do leilão Caixa
-                let custoCondominio = 0;
-                if (isCaixa === "SIM") {
-                    const pCond = parseFloat(document.getElementById('pCondominio').value) || 0;
-                    custoCondominio = vAvaliacao * (Math.min(pCond, 10) / 100);
-                    document.getElementById('condominioValorDisplay').value =
-                        custoCondominio.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
-                }
-
-                // Totais de carregamento
-                const totalParcelasPagas = valorParcela * mesesCarregamento;
-
-                // Saldo devedor real para quitação na venda (sistema Price)
-                const saldoDevedorParaQuitacao = saldoDevedorPrice(saldoDevedorInicial, valorParcela, iMensalFinanc, mesesCarregamento);
-
-                // O que saiu do bolso de fato (Investimento Real de Caixa)
-                const investimentoDesembolsado = entradaSinal + totalParcelasPagas + custoTaxaCaixa + custoCondominio + custoDocFinal + custoReforma + custoAdvogado + custoIptuTotal + custoCondCarregamento;
-
-                // Custos de Desinvestimento
-                const comissaoVenda = vVenda * pComissao;
-
-                // Cálculo de Tributação
-                let impFinal = 0;
-                if (regime === "PJ") {
-                    impFinal = vVenda * 0.04;
-                } else if (regime === "PF") {
-                    const baseCustoContabil = lanceMinimo + custoTaxaCaixa + custoCondominio + custoDocFinal + custoReforma + custoAdvogado;
-                    const ganhoCapital = Math.max(0, vVenda - baseCustoContabil - comissaoVenda);
-                    impFinal = ganhoCapital * 0.15;
-                } else {
-                    impFinal = 0; // Regime "NONE"
-                }
-
-                // Lucro Final Líquido de Caixa
-                const lucroLiq = vVenda - saldoDevedorParaQuitacao - comissaoVenda - impFinal - investimentoDesembolsado;
-
-                // Métricas de Performance Financeira
-                const roeFinanc = (investimentoDesembolsado > 0) ? (lucroLiq / investimentoDesembolsado) * 100 : 0;
-                const moc = (investimentoDesembolsado > 0) ? ((lucroLiq + investimentoDesembolsado) / investimentoDesembolsado) : 0;
-
-                // TIR mensal via fluxo de caixa real (entrada+custos no t0, parcelas mensais, venda no fim)
-                const custosIniciais = entradaSinal + custoTaxaCaixa + custoCondominio + custoDocFinal + custoReforma + custoAdvogado;
-                // Recebimento líquido na venda (antes de descontar o investimento de caixa)
-                const recebimentoVenda = vVenda - saldoDevedorParaQuitacao - comissaoVenda - impFinal;
-                const fluxo = [];
-                fluxo.push(-custosIniciais); // t0: desembolso inicial
-                const m = Math.max(1, Math.round(mesesCarregamento));
-                for (let t = 1; t <= m; t++) {
-                    if (t < m) {
-                        fluxo.push(-valorParcela);
-                    } else {
-                        // No último mês: paga a última parcela e recebe o produto líquido da venda
-                        fluxo.push(recebimentoVenda - valorParcela);
-                    }
-                }
-                let tirM = 0;
-                if (investimentoDesembolsado > 0 && (lucroLiq + investimentoDesembolsado) > 0) {
-                    tirM = calcularTIR(fluxo);
-                    if (!isFinite(tirM)) tirM = 0;
-                }
-
-                // Rentabilidade anualizada (equivalente composto da TIR mensal)
-                const tirAa = (Math.pow(1 + tirM / 100, 12) - 1) * 100;
-
-                // ROI Nominal Simplificado (À vista)
-                const custoTotalOperacao = lanceMinimo + custoTaxaCaixa + custoCondominio + custoDocFinal + custoReforma + custoAdvogado + custoIptuTotal + custoCondCarregamento + comissaoVenda + impFinal;
-                const roiNominal = (custoTotalOperacao > 0) ? ((vVenda - custoTotalOperacao) / custoTotalOperacao) * 100 : 0;
-
-                // Formatadores de Interface
-                const f = (v) => v.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-                const p = (v) => (vVenda > 0 ? ((v / vVenda) * 100).toFixed(1) : '0.0') + '%';
-
-                // Atualização dos Painéis KPI
-                document.getElementById('resMoc').innerText = moc.toFixed(2) + 'x';
-                document.getElementById('resTir').innerText = tirM.toFixed(2) + '%';
-                document.getElementById('resTirAa').innerText = tirAa.toFixed(1) + '%';
-                document.getElementById('resLucroAbs').innerText = f(lucroLiq);
-                document.getElementById('resRoe').innerText = roeFinanc.toFixed(1) + '%';
-                document.getElementById('resRoi100').innerText = roiNominal.toFixed(1) + '%';
-                document.getElementById('resDiff').innerText = `+${(roeFinanc - roiNominal).toFixed(1)}%`;
-
-                const sMen = (Math.pow(1 + selicAnual, 1/12) - 1) * 100;
-                document.getElementById('selicMensal').innerText = sMen.toFixed(2) + "%";
-                document.getElementById('statusTirVal').innerText = tirM.toFixed(2) + "% a.m.";
-                document.getElementById('tmaMarkerVal').innerText = tma.toFixed(1) + "%";
-
-                // Alimentação da Tabela Dinâmica
-                document.getElementById('tabReceita').innerText = f(vVenda);
-                document.getElementById('tabEntrada').innerText = f(entradaSinal);
-                document.getElementById('pEntrada').innerText = p(entradaSinal);
-                // Linha de parcelas: título mostra parcela unitária × meses
-                document.getElementById('descParcelas').innerText =
-                    `Parcelas do Financiamento — ${Math.round(mesesCarregamento)}x de ${f(valorParcela)}`;
-                document.getElementById('tabParcelas').innerText = f(totalParcelasPagas);
-                document.getElementById('pParcelas').innerText = p(totalParcelasPagas);
-                document.getElementById('tabInvestido').innerText = f(investimentoDesembolsado);
-                document.getElementById('pInvestido').innerText = p(investimentoDesembolsado);
-
-                // Rótulo dinâmico da comissão do leiloeiro (sempre visível)
-                const baseTxt = (baseTaxaLeiloeiro === "AVALIACAO") ? "Avaliação" : "Lance";
-                document.getElementById('descTaxaCaixa').innerText =
-                    `Comissão Leiloeiro (${(pComissaoLeiloeiro*100).toFixed(1)}% s/ ${baseTxt})`;
-
-                // Dívida de condomínio: exclusiva do leilão Caixa
-                if (isCaixa === "SIM") {
-                    const pCond = parseFloat(document.getElementById('pCondominio').value) || 0;
-                    document.getElementById('descCondominio').innerText =
-                        `Dívida de Condomínio (${pCond}% s/ Avaliação — máx. 10%)`;
-                    document.getElementById('tabCondominio').innerText = f(custoCondominio);
-                    document.getElementById('pCondominio2').innerText = p(custoCondominio);
-                } else {
-                    document.getElementById('tabCondominio').innerText = f(0);
-                    document.getElementById('pCondominio2').innerText = "0.0%";
-                }
-                document.getElementById('tabTaxaCaixa').innerText = f(custoTaxaCaixa);
-                document.getElementById('pTaxaCaixa').innerText = p(custoTaxaCaixa);
-
-                // Atualiza preview do valor calculado no bloco de inputs
-                document.getElementById('docAutoValor').innerText = f(custoDocFinal);
-
-                // Atualiza título da linha da tabela com os percentuais usados
-                const pTotal = pItbi + pEscritura + pRegistro;
-                document.getElementById('descDoc').innerText =
-                    `ITBI (${pItbi}%) + Escritura (${pEscritura}%) + Registro (${pRegistro}%) = ${pTotal.toFixed(1)}% s/ Lance`;
-
-                document.getElementById('tabDoc').innerText = f(custoDocFinal);
-                document.getElementById('pDoc').innerText = p(custoDocFinal);
-                document.getElementById('tabReforma').innerText = f(custoReforma);
-                document.getElementById('pReforma').innerText = p(custoReforma);
-                document.getElementById('tabAdvogado').innerText = f(custoAdvogado);
-                document.getElementById('pAdvogado').innerText = p(custoAdvogado);
-
-                // Carregamento: IPTU e Condomínio
-                const mCarg = Math.max(1, Math.round(mesesCarregamento));
-                document.getElementById('descIptuCarregamento').innerText =
-                    modoCarregamento === 'estimar'
-                        ? `IPTU — Carregamento ${mCarg}x de ${f(iptuMensal)}/mês`
-                        : `IPTU — Carregamento (incluído no total manual)`;
-                document.getElementById('tabIptuCarregamento').innerText = f(custoIptuTotal);
-                document.getElementById('pIptuCarregamento').innerText = p(custoIptuTotal);
-
-                const condLabel = modoCarregamento === 'estimar'
-                    ? `Condomínio — ${mCarg}x de ${f(condominioMensal)}/mês`
-                    : `Condomínio + IPTU + Outros — ${mCarg}x de ${f(carregamentoMensalTotal)}/mês`;
-                document.getElementById('descCondCarregamento').innerText = condLabel;
-                document.getElementById('tabCondCarregamento').innerText = f(custoCondCarregamento);
-                document.getElementById('pCondCarregamento').innerText = p(custoCondCarregamento);
-
-                // Atualiza previews do bloco de estimativa
-                if (modoCarregamento === 'estimar') {
-                    document.getElementById('iptuEstimado').innerText = f(iptuMensal);
-                    document.getElementById('condominioEstimado').innerText = f(condominioMensal);
-                    const totalCarreg = iptuMensal + condominioMensal;
-                    document.getElementById('carregamentoTotalDisplay').innerText = f(totalCarreg * mesesCarregamento);
-                    document.getElementById('carregamentoFormula').innerText =
-                        `IPTU ${f(iptuMensal)} + Cond. ${f(condominioMensal)} = ${f(totalCarreg)}/mês × ${mCarg} meses`;
-                } else {
-                    document.getElementById('carregamentoTotalDisplay').innerText = f(carregamentoMensalTotal * mesesCarregamento);
-                    document.getElementById('carregamentoFormula').innerText =
-                        `${f(carregamentoMensalTotal)}/mês × ${mCarg} meses`;
-                }
-
-                document.getElementById('tabSaldoDevedor').innerText = f(saldoDevedorParaQuitacao);
-                document.getElementById('pSaldoDevedor').innerText = p(saldoDevedorParaQuitacao);
-
-                document.getElementById('tabCom').innerText = f(comissaoVenda);
-                document.getElementById('pCom').innerText = p(comissaoVenda);
-                document.getElementById('tabImposto').innerText = f(impFinal);
-                document.getElementById('pImposto').innerText = p(impFinal);
-
-                document.getElementById('tabLucro').innerText = f(lucroLiq);
-                document.getElementById('pLucro').innerText = p(lucroLiq);
-
-                // Texto Descritivo do Imposto na Tabela
-                if (regime === "PJ") {
-                    document.getElementById('descImposto').innerText = "Imposto (RET 4%)";
-                } else if (regime === "PF") {
-                    document.getElementById('descImposto').innerText = "Imposto (PF 15%)";
-                } else {
-                    document.getElementById('descImposto').innerText = "Imposto (Isento)";
-                }
-
-                // Gerenciamento Dinâmico de Faróis, Veredito e Cores de Risco
-                const card = document.getElementById('statusCard');
-                const stxt = document.getElementById('statusText');
-                const vCard = document.getElementById('vereditoCard');
-                const vIcon = document.getElementById('vereditoIcon');
-                const vText = document.getElementById('vereditoText');
-                const vSub = document.getElementById('vereditoSub');
-                const vRent = document.getElementById('vereditoRent');
-                const vRentSub = document.getElementById('vereditoRentSub');
-
-                const lucrativo = lucroLiq > 0;
-                let nivel; // 'bom' | 'medio' | 'ruim'
-                if (lucrativo && tirM > tma) nivel = 'bom';
-                else if (!lucrativo || tirM < sMen) nivel = 'ruim';
-                else nivel = 'medio';
-
-                // Card de status (comparativo mensal)
-                if (nivel === 'bom') {
-                    card.className = "card border-l-8 border-emerald-500 bg-emerald-50 p-6 shadow-xl";
-                    stxt.innerText = "Supera sua Meta (TMA)";
-                } else if (nivel === 'ruim') {
-                    card.className = "card border-l-8 border-rose-500 bg-rose-50 p-6 shadow-xl";
-                    stxt.innerText = tirM < sMen ? "Abaixo do Custo de Oportunidade" : "Operação no Prejuízo";
-                } else {
-                    card.className = "card border-l-8 border-amber-500 bg-amber-50 p-6 shadow-xl";
-                    stxt.innerText = "Retorno Marginal / Risco Moderado";
-                }
-
-                // Veredito principal (resposta direta de rentabilidade)
-                vRent.innerText = (tirAa >= 0 ? "" : "") + tirAa.toFixed(1) + "% a.a.";
-                vRentSub.innerText = `${f(lucroLiq)} em ${m} ${m === 1 ? 'mês' : 'meses'}`;
-                if (nivel === 'bom') {
-                    vCard.className = "rounded-3xl p-7 shadow-xl border-l-8 transition-all duration-500 bg-slate-900 border-emerald-500 text-white";
-                    vIcon.className = "w-9 h-9 rounded-full flex items-center justify-center text-lg font-black bg-emerald-500 text-white";
-                    vIcon.innerText = "✓";
-                    vText.innerText = "Investimento Rentável";
-                    vSub.innerText = `Rende ${tirM.toFixed(2)}% ao mês, acima da sua meta de ${tma.toFixed(1)}% e da Selic de ${sMen.toFixed(2)}%. Cada R$ 1 investido vira R$ ${moc.toFixed(2)}.`;
-                    vRent.className = "text-4xl font-black text-emerald-400 leading-none";
-                } else if (nivel === 'ruim') {
-                    vCard.className = "rounded-3xl p-7 shadow-xl border-l-8 transition-all duration-500 bg-slate-900 border-rose-500 text-white";
-                    vIcon.className = "w-9 h-9 rounded-full flex items-center justify-center text-lg font-black bg-rose-500 text-white";
-                    vIcon.innerText = "✕";
-                    vText.innerText = lucrativo ? "Rentável, mas Não Compensa" : "Investimento no Prejuízo";
-                    vSub.innerText = lucrativo
-                        ? `Rende ${tirM.toFixed(2)}% ao mês, abaixo da Selic de ${sMen.toFixed(2)}%. O retorno não paga o risco — um título sem risco renderia mais.`
-                        : `A operação gera prejuízo de ${f(Math.abs(lucroLiq))}. Revise lance, custos ou valor de venda.`;
-                    vRent.className = "text-4xl font-black text-rose-400 leading-none";
-                } else {
-                    vCard.className = "rounded-3xl p-7 shadow-xl border-l-8 transition-all duration-500 bg-slate-900 border-amber-500 text-white";
-                    vIcon.className = "w-9 h-9 rounded-full flex items-center justify-center text-lg font-black bg-amber-500 text-white";
-                    vIcon.innerText = "!";
-                    vText.innerText = "Rentabilidade Marginal";
-                    vSub.innerText = `Rende ${tirM.toFixed(2)}% ao mês: supera a Selic (${sMen.toFixed(2)}%) mas fica abaixo da sua meta de ${tma.toFixed(1)}%. Avalie o risco antes de prosseguir.`;
-                    vRent.className = "text-4xl font-black text-amber-400 leading-none";
-                }
-
-                // Renderização da Barra com marcadores (escala dinâmica)
-                // Define o topo da escala com folga sobre o maior valor relevante
-                const escalaMax = Math.max(tirM, tma, sMen, 0.1) * 1.25;
-                const pos = (v) => Math.max(0, Math.min(100, (v / escalaMax) * 100));
-                document.getElementById('tirBar').style.width = pos(Math.max(0, tirM)) + "%";
-                document.getElementById('selicMarker').style.left = pos(sMen) + "%";
-                document.getElementById('tmaMarker').style.left = pos(tma) + "%";
-
-                // Atualização do Gráfico Rosca (Doughnut)
-                const ctx = document.getElementById('chartInvestor').getContext('2d');
-                if (chartP) chartP.destroy();
-                chartP = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Entrada/Sinal', 'Parcelas Pagas', 'Comissão Leiloeiro', 'Dívida Condomínio', 'Outros Custos (Capex/Doc)'],
-                        datasets: [{
-                            data: [entradaSinal, totalParcelasPagas, custoTaxaCaixa, custoCondominio, (custoDocFinal + custoAdvogado + custoReforma)],
-                            backgroundColor: ['#2563eb', '#93c5fd', '#f59e0b', '#fb923c', '#f43f5e'],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        maintainAspectRatio: false, cutout: '75%',
-                        plugins: {
-                            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10, weight: '600' } } },
-                            datalabels: {
-                                color: '#fff', font: { weight: 'bold', size: 10 },
-                                display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0,
-                                formatter: (v, ctx) => {
-                                    let s = 0; ctx.chart.data.datasets[0].data.map(d => s += d);
-                                    return s > 0 ? (v * 100 / s).toFixed(1) + "%" : "0%";
-                                }
-                            }
-                        }
-                    }
-                });
-            } catch (e) { console.error("Erro na compilação dos dados: ", e); }
-        }
-
-        function exportarPDF() {
-            // Atualiza o título da aba/janela para virar nome do arquivo sugerido
-            const tituloOriginal = document.title;
-            const lance = document.getElementById('lanceMinimo').value || '0';
-            const venda = document.getElementById('vendaAlvo').value || '0';
-            const fNum = (v) => parseFloat(v).toLocaleString('pt-BR', {minimumFractionDigits: 0, maximumFractionDigits: 0});
-            document.title = `Leilão — Lance R$${fNum(lance)} → Venda R$${fNum(venda)}`;
-            window.print();
-            // Restaura título após impressão
-            setTimeout(() => { document.title = tituloOriginal; }, 2000);
-        }
-
-        window.addEventListener('load', () => {
-            toggleCaixaField();
-            syncSlider(document.getElementById('lanceMinimo').value);
-            detectarPctAtivo();
-            setTimeout(calcular, 100);
-        });
-    </script>
-</body>
-</html>
+           
