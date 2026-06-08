@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real Estate Auction Analysis v12.0</title>
+    <title>Análise de Leilão Imobiliário v12.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
@@ -30,11 +30,11 @@
     <div class="max-w-7xl mx-auto">
         <header class="mb-10 flex justify-between items-end border-b border-slate-200 pb-8">
             <div>
-                <h1 class="text-3xl font-black text-slate-900 uppercase italic tracking-tighter text-blue-600">Auction Analysis v12.0</h1>
+                <h1 class="text-3xl font-black text-slate-900 uppercase italic tracking-tighter text-blue-600">Análise de Leilão Imobiliário v12.0</h1>
                 <p class="text-slate-500 text-sm font-medium italic">Simulador Profissional: Operações de Leilão Caixa e Alavancagem SBPE</p>
             </div>
             <div class="text-right hidden md:block">
-                <span class="bg-blue-600 text-white text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest italic">Auction Strategy Disclosure</span>
+                <span class="bg-blue-600 text-white text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest italic">Simulador Estratégico de Leilões</span>
             </div>
         </header>
 
@@ -71,7 +71,6 @@
                         <input type="number" id="entradaSinal" value="25800.00" class="border-blue-200 bg-blue-50 font-bold" oninput="detectarPctAtivo(); calcular()">
                         <div class="flex flex-wrap gap-1.5 mt-2">
                             <span class="text-[8px] font-black text-slate-400 uppercase self-center mr-0.5">% do Lance:</span>
-                            <button id="btnPct0"   onclick="setEntradaPct(0)"   class="btn-pct px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wide border transition-all">0%</button>
                             <button id="btnPct10"  onclick="setEntradaPct(10)"  class="btn-pct px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wide border transition-all">10%</button>
                             <button id="btnPct20"  onclick="setEntradaPct(20)"  class="btn-pct px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wide border transition-all">20%</button>
                             <button id="btnPct30"  onclick="setEntradaPct(30)"  class="btn-pct px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wide border transition-all">30%</button>
@@ -160,16 +159,7 @@
                                 <input type="text" id="condominioValorDisplay" readonly class="border-amber-200 bg-amber-100/60 text-amber-800 font-black text-center cursor-default">
                             </div>
                         </div>
-                        <p class="text-[8px] text-amber-600 mt-2 leading-tight">A dívida de condomínio é obrigação <em>propter rem</em> e acompanha o imóvel, podendo ser cobrada do arrematante. O teto de 10% da avaliação é uma estimativa de teto prudente — não há regra geral fixa, então confira sempre o edital e a certidão de débitos do imóvel.</p>
-                    </div>
-                    <!-- Dívidas manuais (IPTU + Condomínio): visível apenas quando leilão Caixa = Não -->
-                    <div id="divDividasManual" class="bg-amber-50 border border-amber-200 rounded-2xl p-3 mb-3" style="display:none">
-                        <p class="text-[9px] font-black text-amber-700 uppercase tracking-widest mb-2">⚠ Dívidas a Assumir — IPTU + Condomínio (R$)</p>
-                        <div class="input-group !mb-0">
-                            <label>Soma das dívidas pendentes (R$)</label>
-                            <input type="number" id="dividasManual" value="0" min="0" class="border-amber-300 bg-white text-center font-black" oninput="calcular()">
-                        </div>
-                        <p class="text-[8px] text-amber-600 mt-2 leading-tight">Em leilões de outros credores (bancos privados, judiciais), confira na certidão de débitos e no edital se o arrematante assume IPTU e condomínio em atraso. Digite aqui a soma estimada — o valor entra no desembolso e na base de custo contábil.</p>
+                        <p class="text-[8px] text-amber-600 mt-2 leading-tight">Em leilões Caixa, o arrematante assume dívidas de condomínio do imóvel, limitadas a 10% do valor de avaliação (Lei 8.009/90 e jurisprudência consolidada).</p>
                     </div>
                     <!-- ITBI + Escritura + Registro: percentuais sobre o lance, calculados automaticamente -->
                     <div class="bg-slate-100/70 rounded-2xl p-3 mb-3 border border-slate-200">
@@ -200,6 +190,60 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div class="input-group"><label>Sua TMA (% ao mês)</label><input type="number" id="tmaInput" value="1.5" step="0.1" class="border-amber-400 bg-amber-50 font-black" oninput="calcular()"></div>
                         <div class="input-group"><label>Selic (% ao ano)</label><input type="number" id="selicAnual" value="14.50" step="0.25" class="border-slate-300 bg-slate-50 font-bold" oninput="calcular()"></div>
+                    </div>
+
+                    <!-- CARREGAMENTO MENSAL: IPTU + Condomínio -->
+                    <div class="bg-amber-50/60 border border-amber-200 rounded-2xl p-3 mt-1">
+                        <div class="flex justify-between items-center mb-3">
+                            <p class="text-[9px] font-black text-amber-700 uppercase tracking-widest">Carregamento Mensal — IPTU + Condomínio</p>
+                            <div class="flex gap-1">
+                                <button id="btnCarregamentoEstimar" onclick="setModoCarregamento('estimar')"
+                                    class="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wide border transition-all bg-amber-500 text-white border-amber-500">⚡ Estimar</button>
+                                <button id="btnCarregamentoManual" onclick="setModoCarregamento('manual')"
+                                    class="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wide border transition-all bg-white text-slate-500 border-slate-200">✎ Manual</button>
+                            </div>
+                        </div>
+
+                        <!-- Modo Estimar -->
+                        <div id="divCarregamentoEstimar">
+                            <p class="text-[8px] font-black text-amber-600 uppercase tracking-widest mb-2">Parâmetros de Estimativa</p>
+                            <div class="grid grid-cols-3 gap-2 mb-2">
+                                <div class="input-group !mb-0">
+                                    <label>Alíquota IPTU (% a.a.)</label>
+                                    <input type="number" id="aliquotaIptu" value="1.0" step="0.1" min="0" class="border-amber-300 bg-white text-center font-bold" oninput="calcular()">
+                                </div>
+                                <div class="input-group !mb-0">
+                                    <label>Condomínio (R$/m²/mês)</label>
+                                    <input type="number" id="condominioM2" value="8" step="0.5" min="0" class="border-amber-300 bg-white text-center font-bold" oninput="calcular()">
+                                </div>
+                                <div class="input-group !mb-0">
+                                    <label>Área útil (m²)</label>
+                                    <input type="number" id="areaUtil" value="50" step="1" min="0" class="border-amber-300 bg-white text-center font-bold" oninput="calcular()">
+                                </div>
+                            </div>
+                            <p class="text-[8px] text-amber-600 italic leading-tight">IPTU = Lance × alíquota ÷ 12 &nbsp;|&nbsp; Cond. = Área útil × R$/m² &nbsp;|&nbsp; Alíquota ref: 0,5–1,5% a.a. (municípios BR) &nbsp;|&nbsp; Cond. ref: R$5–12/m²/mês</p>
+                            <div class="flex justify-between items-center mt-2 pt-2 border-t border-amber-200">
+                                <div class="text-[9px] text-amber-700 font-bold">
+                                    IPTU: <span id="iptuEstimado" class="font-black">R$ 0,00</span>/mês &nbsp;+&nbsp;
+                                    Cond.: <span id="condominioEstimado" class="font-black">R$ 0,00</span>/mês
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modo Manual -->
+                        <div id="divCarregamentoManual" class="hidden">
+                            <div class="input-group !mb-0">
+                                <label>Total IPTU + Condomínio + Outros (R$/mês)</label>
+                                <input type="number" id="carregamentoManualTotal" value="0" step="50" min="0" class="border-amber-300 bg-white font-bold" oninput="calcular()">
+                            </div>
+                        </div>
+
+                        <!-- Total calculado (ambos os modos) -->
+                        <div class="flex justify-between items-center mt-2 pt-2 border-t border-amber-300">
+                            <span class="text-[9px] font-black text-amber-700 uppercase tracking-wider">Total calculado (R$)</span>
+                            <span id="carregamentoTotalDisplay" class="text-sm font-black text-amber-800">R$ 0,00</span>
+                        </div>
+                        <p class="text-[8px] text-amber-500 mt-1 italic" id="carregamentoFormula"></p>
                     </div>
                 </div>
 
@@ -294,6 +338,8 @@
                                 <tr class="bg-slate-50/60 italic"><td id="descDoc">ITBI (3%) + Escritura (1%) + Registro (1%)</td><td class="text-right" id="tabDoc">-</td><td class="text-right" id="pDoc">-</td></tr>
                                 <tr class="bg-slate-50/60 italic"><td>Intervenções / CapEx Reforma</td><td class="text-right" id="tabReforma">-</td><td class="text-right" id="pReforma">-</td></tr>
                                 <tr class="bg-slate-50/60 italic"><td>Assessoria Jurídica Especializada</td><td class="text-right" id="tabAdvogado">-</td><td class="text-right" id="pAdvogado">-</td></tr>
+                                <tr class="bg-amber-50/50 font-semibold text-amber-900"><td id="descIptuCarregamento">IPTU — Carregamento (0 meses)</td><td class="text-right" id="tabIptuCarregamento">-</td><td class="text-right" id="pIptuCarregamento">-</td></tr>
+                                <tr class="bg-amber-50/50 font-semibold text-amber-900"><td id="descCondCarregamento">Condomínio + Outros — Carregamento (0 meses)</td><td class="text-right" id="tabCondCarregamento">-</td><td class="text-right" id="pCondCarregamento">-</td></tr>
                                 <tr class="bg-slate-100 font-bold text-slate-800"><td>= TOTAL DESEMBOLSADO (CAPITAL INVESTIDO)</td><td class="text-right" id="tabInvestido">-</td><td class="text-right" id="pInvestido">-</td></tr>
                                 <tr><td colspan="3" class="!p-2 !pt-3 text-[9px] font-black text-blue-600 uppercase tracking-widest">▸ Liquidação na venda (descontado direto da transação)</td></tr>
                                 <tr class="highlight-fin"><td>SALDO DEVEDOR QUITADO NA VENDA</td><td class="text-right" id="tabSaldoDevedor">-</td><td class="text-right" id="pSaldoDevedor">-</td></tr>
@@ -326,45 +372,9 @@
                             </div>
                         </div>
                         <div class="pt-4 border-t border-white/10 text-center text-xs">
-                            <p id="resDiffLabel" class="opacity-70 uppercase font-bold mb-1 tracking-widest">Ganho de Alavancagem Bancária (SBPE)</p>
+                            <p class="opacity-70 uppercase font-bold mb-1 tracking-widest">Alavancagem Bancária (SBPE)</p>
                             <p class="text-xl font-black text-emerald-400" id="resDiff">+0%</p>
                         </div>
-                    </div>
-                </div>
-
-                <!-- ═══ SIMULADOR DE LANCE MÁXIMO vs TMA ═══ -->
-                <div class="card p-0 overflow-hidden border-slate-300 shadow-lg">
-                    <div class="bg-slate-900 px-6 py-5 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
-                        <div>
-                            <h3 class="text-white font-black uppercase text-[11px] tracking-widest italic">Qual o Lance Máximo para Bater sua Meta?</h3>
-                            <p class="text-[9px] text-blue-300 font-bold uppercase tracking-wider mt-0.5">Curva da rentabilidade mensal em função do lance arrematado</p>
-                        </div>
-                        <div class="text-left md:text-right bg-emerald-500/10 border border-emerald-500/30 rounded-2xl px-4 py-2">
-                            <p class="text-[8px] text-emerald-300 font-black uppercase tracking-widest">Lance-teto p/ sua TMA</p>
-                            <p id="lanceTetoTMA" class="text-2xl font-black text-emerald-400 leading-none">R$ 0</p>
-                        </div>
-                    </div>
-                    <div class="p-6">
-                        <div class="relative h-72"><canvas id="chartLanceMax"></canvas></div>
-                        <!-- Cartões-resumo dos lances de referência -->
-                        <div class="grid grid-cols-3 gap-3 mt-5">
-                            <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 text-center">
-                                <p class="text-[8px] font-black text-emerald-600 uppercase tracking-widest mb-1">Lance-teto · TMA</p>
-                                <p id="cardLanceTMA" class="text-base font-black text-emerald-700 leading-tight">R$ 0</p>
-                                <p class="text-[8px] text-emerald-500 font-bold mt-0.5">rende sua meta</p>
-                            </div>
-                            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-center">
-                                <p class="text-[8px] font-black text-amber-600 uppercase tracking-widest mb-1">Lance-teto · Selic</p>
-                                <p id="cardLanceSelic" class="text-base font-black text-amber-700 leading-tight">R$ 0</p>
-                                <p class="text-[8px] text-amber-500 font-bold mt-0.5">empata c/ renda fixa</p>
-                            </div>
-                            <div class="bg-rose-50 border border-rose-200 rounded-2xl p-3 text-center">
-                                <p class="text-[8px] font-black text-rose-600 uppercase tracking-widest mb-1">Break-even</p>
-                                <p id="cardLanceBreak" class="text-base font-black text-rose-700 leading-tight">R$ 0</p>
-                                <p class="text-[8px] text-rose-500 font-bold mt-0.5">lucro zero</p>
-                            </div>
-                        </div>
-                        <p class="text-[10px] text-slate-400 font-medium italic mt-4 leading-relaxed">A curva mostra como sua rentabilidade mensal cai conforme você sobe o lance, mantendo o valor de venda, a entrada (% atual) e os custos fixos. A linha pontilhada marca o <strong class="text-emerald-600">lance máximo que ainda entrega sua TMA</strong> — pagar acima disso fura a meta. A bolinha azul é o seu lance atual.</p>
                     </div>
                 </div>
             </div>
@@ -379,7 +389,7 @@
                 </div>
                 <div>
                     <h2 class="text-2xl font-black text-white uppercase tracking-tighter italic">Memorial de Critérios & Metodologia de Cálculo</h2>
-                    <p class="text-[10px] text-blue-400 font-black uppercase tracking-[0.2em] mt-0.5">Todos os critérios aplicados nesta simulação — Auction Analysis v12.0</p>
+                    <p class="text-[10px] text-blue-400 font-black uppercase tracking-[0.2em] mt-0.5">Todos os critérios aplicados nesta simulação — Análise de Leilão Imobiliário v12.0</p>
                 </div>
             </div>
 
@@ -409,9 +419,9 @@
                     </div>
                     <div class="md:col-span-9 space-y-2">
                         <p><strong class="text-slate-800">Comissão do leiloeiro:</strong> percentual pago ao leiloeiro pelo serviço de intermediação, incidindo sobre o lance arrematado ou sobre o valor de avaliação (configurável). O padrão aplicado é <strong>5% sobre o lance</strong>, conforme prática consolidada nos leilões extrajudiciais públicos no Brasil.</p>
-                        <p><strong class="text-slate-800">Dívida de condomínio — leilão Caixa:</strong> ao arrematar um imóvel em leilão, as dívidas de condomínio pendentes são obrigação <em>propter rem</em> — vinculam-se ao bem e não à pessoa, podendo ser cobradas do novo proprietário. <strong>Não há um teto legal fixo</strong> de responsabilidade: o valor depende do débito real existente, do que o edital prevê e de eventual sub-rogação no preço da arrematação. O simulador adota como <strong>premissa prudente</strong> um teto de até 10% do valor de avaliação, calculado como <code class="bg-slate-100 px-1 rounded">Dívida Cond. = Valor de Avaliação × % informado (máx. 10%)</code>. Ajuste o percentual conforme a certidão de débitos condominiais e o edital específico do imóvel — em alguns casos a dívida pode ser maior, em outros já está quitada pelo produto do leilão.</p>
+                        <p><strong class="text-slate-800">Dívida de condomínio — regra do leilão Caixa:</strong> ao arrematar um imóvel em leilão da Caixa Econômica Federal, o arrematante assume as dívidas de condomínio pendentes vinculadas ao imóvel. Por jurisprudência consolidada (STJ — EREsp 1.611.821) e pela prática dos editais da Caixa, <strong>o limite de responsabilidade do arrematante é de até 10% do valor de avaliação do imóvel</strong>. Este custo é calculado automaticamente como: <code class="bg-slate-100 px-1 rounded">Dívida Cond. = Valor de Avaliação × % informado (máx. 10%)</code>. O percentual pode ser ajustado entre 0% e 10% conforme o edital específico do imóvel.</p>
                         <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-amber-900">
-                            <strong>Quando responder "Não" para Leilão Caixa:</strong> a comissão do leiloeiro e os campos de avaliação permanecem ativos, pois leilões de outros credores (bancos privados, judiciais) também cobram comissão. O bloco que calcula a dívida de condomínio como % da avaliação (regra dos 10%) é substituído por um <strong>campo manual "Dívidas a Assumir — IPTU + Condomínio (R$)"</strong>, onde você digita a soma estimada dos débitos vinculados ao imóvel conforme a certidão de débitos e o edital. Esse valor entra no desembolso de caixa, na base de custo contábil (reduzindo o imposto no regime PF) e no fluxo da TIR — e aparece na tabela de operações apenas quando for maior que zero.
+                            <strong>Quando responder "Não" para Leilão Caixa:</strong> a comissão do leiloeiro e os campos de avaliação permanecem ativos, pois leilões de outros credores (bancos privados, judiciais) também cobram comissão. Apenas o campo de dívida de condomínio é ocultado, por ser uma característica específica dos editais da Caixa.
                         </div>
                     </div>
                 </div>
@@ -488,7 +498,7 @@
                             </div>
                             <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
                                 <p class="font-black text-slate-800 mb-1">ROE Alavancado vs ROI Nominal</p>
-                                <p>O <strong>ROE</strong> mede o retorno sobre o capital efetivamente desembolsado (entrada + parcelas + custos), refletindo o efeito da alavancagem. O <strong>ROI nominal</strong> simula a mesma operação comprando à vista — o denominador passa a ser o custo total de aquisição (lance cheio + custos de entrada), sem comissão de venda nem imposto, que são despesas de saída e não capital aportado. <strong>Quando a entrada é 100% do lance, os dois indicadores convergem para o mesmo valor</strong>, pois não há alavancagem. A diferença entre eles isola o efeito do financiamento: positiva quando o retorno do projeto supera o custo da dívida (alavancagem cria valor), e <strong>negativa quando o juro do financiamento é maior que o retorno à vista</strong> — nesse caso, alavancar destrói valor (alavancagem negativa), e o card passa a indicar "Perda por Alavancagem".</p>
+                                <p>O ROE mede o retorno sobre o capital efetivamente desembolsado (com alavancagem). O ROI nominal simula como seria a operação sem financiamento, comprando à vista. A diferença entre os dois é o ganho gerado pela alavancagem bancária.</p>
                             </div>
                         </div>
                     </div>
@@ -517,33 +527,6 @@
                             </div>
                         </div>
                         <p class="mt-2">A <strong>Selic de referência</strong> usada como piso é de <strong>14,50% a.a.</strong> (equivalente a ~1,13% a.m.), atualizada conforme a última decisão do Copom (maio/2026). A <strong>TMA</strong> é definida pelo próprio investidor no campo correspondente (padrão 1,5% a.m.).</p>
-                    </div>
-                </div>
-
-                <!-- 7. LANCE MÁXIMO -->
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 py-8">
-                    <div class="md:col-span-3">
-                        <span class="inline-block bg-blue-600 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full mb-2">Lance Máximo</span>
-                        <h4 class="font-black text-slate-900 text-sm leading-tight">Curva de Rentabilidade vs Lance</h4>
-                    </div>
-                    <div class="md:col-span-9 space-y-2">
-                        <p>O gráfico de lance máximo <strong>inverte a lógica da simulação</strong>: em vez de testar um lance e ver o retorno, ele varre todos os lances possíveis (de zero até pouco acima do valor de venda) e calcula a TIR mensal de cada um, mantendo fixos o valor de venda, o percentual de entrada atual e todos os demais custos. O resultado é uma curva descendente — quanto mais você paga pelo imóvel, menor a rentabilidade.</p>
-                        <p>Três lances de referência são extraídos por interpolação na curva:</p>
-                        <div class="grid grid-cols-3 gap-3 my-2">
-                            <div class="bg-emerald-50 rounded-xl p-3 border border-emerald-200">
-                                <p class="font-black text-emerald-800 mb-1">Lance-teto · TMA</p>
-                                <p>O maior lance que ainda entrega exatamente a sua Taxa Mínima de Atratividade. Pagar acima disso fura a meta. É o número que você leva para o leilão.</p>
-                            </div>
-                            <div class="bg-amber-50 rounded-xl p-3 border border-amber-200">
-                                <p class="font-black text-amber-800 mb-1">Lance-teto · Selic</p>
-                                <p>O lance no qual a operação empata com a renda fixa sem risco. Entre este e o teto da TMA fica a zona de rentabilidade marginal.</p>
-                            </div>
-                            <div class="bg-rose-50 rounded-xl p-3 border border-rose-200">
-                                <p class="font-black text-rose-800 mb-1">Break-even</p>
-                                <p>O lance de lucro zero. Acima dele, a operação dá prejuízo. É o limite absoluto que não deve ser ultrapassado em hipótese alguma.</p>
-                            </div>
-                        </div>
-                        <p>As faixas de cor da curva (verde / âmbar / vermelho) usam o mesmo critério do veredito, e a <strong>bolinha azul</strong> marca a posição do seu lance atual sobre a curva — permitindo ver instantaneamente quanta margem ainda existe até o teto da sua meta.</p>
                     </div>
                 </div>
 
@@ -600,7 +583,7 @@
             const lance = parseFloat(document.getElementById('lanceMinimo').value) || 0;
             const entrada = parseFloat(document.getElementById('entradaSinal').value) || 0;
             const pctAtual = lance > 0 ? Math.round((entrada / lance) * 100) : -1;
-            const pctValido = [0,10,20,30,40,50,60,70,80,90,100].includes(pctAtual) ? pctAtual : null;
+            const pctValido = [10,20,30,40,50,60,70,80,90,100].includes(pctAtual) ? pctAtual : null;
             atualizarBotoesPct(pctValido);
         }
 
@@ -614,7 +597,7 @@
         }
 
         function atualizarBotoesPct(pctAtivo) {
-            [0,10,20,30,40,50,60,70,80,90,100].forEach(p => {
+            [10,20,30,40,50,60,70,80,90,100].forEach(p => {
                 const btn = document.getElementById('btnPct' + p);
                 if (btn) btn.classList.toggle('ativo', p === pctAtivo);
             });
@@ -647,14 +630,31 @@
             detectarPctAtivo();
         }
 
+        function setModoCarregamento(modo) {
+            const divEstimar = document.getElementById('divCarregamentoEstimar');
+            const divManual = document.getElementById('divCarregamentoManual');
+            const btnEstimar = document.getElementById('btnCarregamentoEstimar');
+            const btnManual = document.getElementById('btnCarregamentoManual');
+            if (modo === 'estimar') {
+                divEstimar.classList.remove('hidden');
+                divManual.classList.add('hidden');
+                btnEstimar.className = 'px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wide border transition-all bg-amber-500 text-white border-amber-500';
+                btnManual.className = 'px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wide border transition-all bg-white text-slate-500 border-slate-200';
+            } else {
+                divEstimar.classList.add('hidden');
+                divManual.classList.remove('hidden');
+                btnEstimar.className = 'px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wide border transition-all bg-white text-slate-500 border-slate-200';
+                btnManual.className = 'px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wide border transition-all bg-amber-500 text-white border-amber-500';
+            }
+            calcular();
+        }
+
         function toggleCaixaField() {
             const isCaixa = document.getElementById('isCaixa').value;
             const ativo = (isCaixa === "SIM");
-            // Caixa: dívida de condomínio calculada como % da avaliação (regra dos 10%)
+            // Apenas dívida de condomínio é exclusiva do leilão Caixa
             document.getElementById('divCondominio').style.display = ativo ? "block" : "none";
-            // Não-Caixa: campo manual para somar IPTU + condomínio em atraso
-            document.getElementById('divDividasManual').style.display = ativo ? "none" : "block";
-            // A linha da tabela é sempre exibida; o rótulo e o valor mudam conforme o caso
+            document.getElementById('rowCondominio').style.display = ativo ? "" : "none";
         }
 
         // Resolve a taxa de juros mensal (i) do financiamento a partir de PV, PMT e n
@@ -731,14 +731,7 @@
 
                 // Calcula a parcela Price com base nos parâmetros atuais
                 let valorParcela;
-                if (saldoDevedorInicial <= 0) {
-                    // Sem financiamento (entrada cobre 100% do lance): não há parcelas.
-                    // Evita "parcela-fantasma" — antes o modo manual mantinha o valor
-                    // digitado mesmo sem saldo a financiar, inflando o investimento.
-                    valorParcela = 0;
-                    document.getElementById('divParcelaManual').style.display = 'none';
-                    document.getElementById('divParcelaAuto').classList.add('hidden');
-                } else if (jurosPreenchido && saldoDevedorInicial > 0 && prazoTotalFinanc > 0) {
+                if (jurosPreenchido && saldoDevedorInicial > 0 && prazoTotalFinanc > 0) {
                     if (iMensalFinanc > 0) {
                         // PMT = PV * i / (1 - (1+i)^-n)
                         valorParcela = saldoDevedorInicial * iMensalFinanc / (1 - Math.pow(1 + iMensalFinanc, -prazoTotalFinanc));
@@ -764,6 +757,24 @@
                 const pRegistro = parseFloat(document.getElementById('pRegistro').value) || 0;
                 const custoReforma = parseFloat(document.getElementById('custoReforma').value) || 0;
                 const custoAdvogado = parseFloat(document.getElementById('custoAdvogado').value) || 0;
+
+                // Carregamento mensal: IPTU + Condomínio + Outros
+                const modoCarregamento = document.getElementById('divCarregamentoEstimar').classList.contains('hidden') ? 'manual' : 'estimar';
+                let iptuMensal = 0, condominioMensal = 0, carregamentoMensalTotal = 0;
+                if (modoCarregamento === 'estimar') {
+                    const aliquotaIptu = parseFloat(document.getElementById('aliquotaIptu').value) || 0;
+                    const condominioM2 = parseFloat(document.getElementById('condominioM2').value) || 0;
+                    const areaUtil = parseFloat(document.getElementById('areaUtil').value) || 0;
+                    iptuMensal = lanceMinimo * (aliquotaIptu / 100) / 12;
+                    condominioMensal = areaUtil * condominioM2;
+                    carregamentoMensalTotal = iptuMensal + condominioMensal;
+                } else {
+                    carregamentoMensalTotal = parseFloat(document.getElementById('carregamentoManualTotal').value) || 0;
+                    iptuMensal = 0;
+                    condominioMensal = 0;
+                }
+                const custoIptuTotal = iptuMensal * mesesCarregamento;
+                const custoCondCarregamento = (modoCarregamento === 'estimar') ? condominioMensal * mesesCarregamento : carregamentoMensalTotal * mesesCarregamento;
                 const vVenda = parseFloat(document.getElementById('vendaAlvo').value) || 0;
                 const pComissao = parseFloat(document.getElementById('pComissao').value) / 100 || 0;
                 const tma = parseFloat(document.getElementById('tmaInput').value) || 0;
@@ -777,22 +788,15 @@
 
                 // ITBI + Escritura + Registro calculados automaticamente sobre o lance
                 const custoDocFinal = lanceMinimo * (pItbi + pEscritura + pRegistro) / 100;
-
-                // Comissão do leiloeiro: aplica-se em qualquer leilão (Caixa ou outros credores)
-                const baseValor = (baseTaxaLeiloeiro === "AVALIACAO") ? vAvaliacao : lanceMinimo;
-                const custoTaxaCaixa = baseValor * pComissaoLeiloeiro;
-
-                // Dívidas vinculadas ao imóvel (IPTU + condomínio)
+                let custoTaxaCaixa = 0;
                 let custoCondominio = 0;
                 if (isCaixa === "SIM") {
-                    // Leilão Caixa: dívida de condomínio estimada como % da avaliação (teto prudente 10%)
+                    const baseValor = (baseTaxaLeiloeiro === "AVALIACAO") ? vAvaliacao : lanceMinimo;
+                    custoTaxaCaixa = baseValor * pComissaoLeiloeiro;
                     const pCond = parseFloat(document.getElementById('pCondominio').value) || 0;
                     custoCondominio = vAvaliacao * (Math.min(pCond, 10) / 100);
                     document.getElementById('condominioValorDisplay').value =
                         custoCondominio.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
-                } else {
-                    // Outros leilões: soma manual de IPTU + condomínio em atraso
-                    custoCondominio = parseFloat(document.getElementById('dividasManual').value) || 0;
                 }
 
                 // Totais de carregamento
@@ -802,7 +806,7 @@
                 const saldoDevedorParaQuitacao = saldoDevedorPrice(saldoDevedorInicial, valorParcela, iMensalFinanc, mesesCarregamento);
 
                 // O que saiu do bolso de fato (Investimento Real de Caixa)
-                const investimentoDesembolsado = entradaSinal + totalParcelasPagas + custoTaxaCaixa + custoCondominio + custoDocFinal + custoReforma + custoAdvogado;
+                const investimentoDesembolsado = entradaSinal + totalParcelasPagas + custoTaxaCaixa + custoCondominio + custoDocFinal + custoReforma + custoAdvogado + custoIptuTotal + custoCondCarregamento;
 
                 // Custos de Desinvestimento
                 const comissaoVenda = vVenda * pComissao;
@@ -850,17 +854,9 @@
                 // Rentabilidade anualizada (equivalente composto da TIR mensal)
                 const tirAa = (Math.pow(1 + tirM / 100, 12) - 1) * 100;
 
-                // ROI Nominal Total (cenário à vista, sem alavancagem):
-                // simula a MESMA operação comprando o imóvel inteiro com capital próprio,
-                // sem financiar nada. O lucro é idêntico em composição ao lucroLiq, mas o
-                // capital investido passa a ser o custo total de aquisição à vista
-                // (lance cheio + todos os custos de entrada), em vez de apenas a entrada.
-                // Comissão de venda e imposto NÃO entram no denominador — são despesas de
-                // saída, não capital aportado. Assim, quando a entrada é 100% do lance
-                // (compra à vista), ROE e ROI Nominal convergem para o mesmo valor.
-                const capitalAVista = lanceMinimo + custoTaxaCaixa + custoCondominio + custoDocFinal + custoReforma + custoAdvogado;
-                const lucroAVista = vVenda - comissaoVenda - impFinal - capitalAVista;
-                const roiNominal = (capitalAVista > 0) ? (lucroAVista / capitalAVista) * 100 : 0;
+                // ROI Nominal Simplificado (À vista)
+                const custoTotalOperacao = lanceMinimo + custoTaxaCaixa + custoCondominio + custoDocFinal + custoReforma + custoAdvogado + custoIptuTotal + custoCondCarregamento + comissaoVenda + impFinal;
+                const roiNominal = (custoTotalOperacao > 0) ? ((vVenda - custoTotalOperacao) / custoTotalOperacao) * 100 : 0;
 
                 // Formatadores de Interface
                 const f = (v) => v.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
@@ -873,23 +869,7 @@
                 document.getElementById('resLucroAbs').innerText = f(lucroLiq);
                 document.getElementById('resRoe').innerText = roeFinanc.toFixed(1) + '%';
                 document.getElementById('resRoi100').innerText = roiNominal.toFixed(1) + '%';
-                const difAlav = roeFinanc - roiNominal;
-                const resDiffEl = document.getElementById('resDiff');
-                const resDiffLabelEl = document.getElementById('resDiffLabel');
-                resDiffEl.innerText = (difAlav >= 0 ? '+' : '') + difAlav.toFixed(1) + '%';
-                if (difAlav >= 0.05) {
-                    // Alavancagem cria valor (retorno do projeto > custo da dívida)
-                    resDiffEl.className = 'text-xl font-black text-emerald-400';
-                    resDiffLabelEl.innerText = 'Ganho de Alavancagem Bancária (SBPE)';
-                } else if (difAlav <= -0.05) {
-                    // Alavancagem destrói valor (juro do financiamento > retorno à vista)
-                    resDiffEl.className = 'text-xl font-black text-rose-400';
-                    resDiffLabelEl.innerText = 'Perda por Alavancagem (juro > retorno)';
-                } else {
-                    // Sem financiamento ou efeito neutro
-                    resDiffEl.className = 'text-xl font-black text-slate-300';
-                    resDiffLabelEl.innerText = 'Alavancagem Neutra (compra à vista)';
-                }
+                document.getElementById('resDiff').innerText = `+${(roeFinanc - roiNominal).toFixed(1)}%`;
 
                 const sMen = (Math.pow(1 + selicAnual, 1/12) - 1) * 100;
                 document.getElementById('selicMensal').innerText = sMen.toFixed(2) + "%";
@@ -908,24 +888,22 @@
                 document.getElementById('tabInvestido').innerText = f(investimentoDesembolsado);
                 document.getElementById('pInvestido').innerText = p(investimentoDesembolsado);
 
-                // Rótulo dinâmico da comissão do leiloeiro (aplica-se em qualquer leilão)
-                const baseTxt = (baseTaxaLeiloeiro === "AVALIACAO") ? "Avaliação" : "Lance";
-                document.getElementById('descTaxaCaixa').innerText =
-                    `Comissão Leiloeiro (${(pComissaoLeiloeiro*100).toFixed(1)}% s/ ${baseTxt})`;
-
-                // Linha de dívidas vinculadas ao imóvel
+                // Rótulo dinâmico da comissão do leiloeiro
                 if (isCaixa === "SIM") {
+                    const baseTxt = (baseTaxaLeiloeiro === "AVALIACAO") ? "Avaliação" : "Lance";
+                    document.getElementById('descTaxaCaixa').innerText =
+                        `Comissão Leiloeiro (${(pComissaoLeiloeiro*100).toFixed(1)}% s/ ${baseTxt})`;
+                    // Linha de condomínio
                     const pCond = parseFloat(document.getElementById('pCondominio').value) || 0;
                     document.getElementById('descCondominio').innerText =
                         `Dívida de Condomínio (${pCond}% s/ Avaliação — máx. 10%)`;
+                    document.getElementById('tabCondominio').innerText = f(custoCondominio);
+                    document.getElementById('pCondominio2').innerText = p(custoCondominio);
                 } else {
-                    document.getElementById('descCondominio').innerText =
-                        `Dívidas a Assumir (IPTU + Condomínio)`;
+                    document.getElementById('descTaxaCaixa').innerText = "Comissão Leiloeiro (N/A)";
+                    document.getElementById('tabCondominio').innerText = f(0);
+                    document.getElementById('pCondominio2').innerText = "0.0%";
                 }
-                document.getElementById('tabCondominio').innerText = f(custoCondominio);
-                document.getElementById('pCondominio2').innerText = p(custoCondominio);
-                // Oculta a linha de dívidas quando o valor é zero
-                document.getElementById('rowCondominio').style.display = custoCondominio > 0 ? "" : "none";
                 document.getElementById('tabTaxaCaixa').innerText = f(custoTaxaCaixa);
                 document.getElementById('pTaxaCaixa').innerText = p(custoTaxaCaixa);
 
@@ -943,6 +921,36 @@
                 document.getElementById('pReforma').innerText = p(custoReforma);
                 document.getElementById('tabAdvogado').innerText = f(custoAdvogado);
                 document.getElementById('pAdvogado').innerText = p(custoAdvogado);
+
+                // Carregamento: IPTU e Condomínio
+                const mCarg = Math.max(1, Math.round(mesesCarregamento));
+                document.getElementById('descIptuCarregamento').innerText =
+                    modoCarregamento === 'estimar'
+                        ? `IPTU — Carregamento ${mCarg}x de ${f(iptuMensal)}/mês`
+                        : `IPTU — Carregamento (incluído no total manual)`;
+                document.getElementById('tabIptuCarregamento').innerText = f(custoIptuTotal);
+                document.getElementById('pIptuCarregamento').innerText = p(custoIptuTotal);
+
+                const condLabel = modoCarregamento === 'estimar'
+                    ? `Condomínio — ${mCarg}x de ${f(condominioMensal)}/mês`
+                    : `Condomínio + IPTU + Outros — ${mCarg}x de ${f(carregamentoMensalTotal)}/mês`;
+                document.getElementById('descCondCarregamento').innerText = condLabel;
+                document.getElementById('tabCondCarregamento').innerText = f(custoCondCarregamento);
+                document.getElementById('pCondCarregamento').innerText = p(custoCondCarregamento);
+
+                // Atualiza previews do bloco de estimativa
+                if (modoCarregamento === 'estimar') {
+                    document.getElementById('iptuEstimado').innerText = f(iptuMensal);
+                    document.getElementById('condominioEstimado').innerText = f(condominioMensal);
+                    const totalCarreg = iptuMensal + condominioMensal;
+                    document.getElementById('carregamentoTotalDisplay').innerText = f(totalCarreg * mesesCarregamento);
+                    document.getElementById('carregamentoFormula').innerText =
+                        `IPTU ${f(iptuMensal)} + Cond. ${f(condominioMensal)} = ${f(totalCarreg)}/mês × ${mCarg} meses`;
+                } else {
+                    document.getElementById('carregamentoTotalDisplay').innerText = f(carregamentoMensalTotal * mesesCarregamento);
+                    document.getElementById('carregamentoFormula').innerText =
+                        `${f(carregamentoMensalTotal)}/mês × ${mCarg} meses`;
+                }
 
                 document.getElementById('tabSaldoDevedor').innerText = f(saldoDevedorParaQuitacao);
                 document.getElementById('pSaldoDevedor').innerText = p(saldoDevedorParaQuitacao);
@@ -1034,7 +1042,7 @@
                 chartP = new Chart(ctx, {
                     type: 'doughnut',
                     data: {
-                        labels: ['Entrada/Sinal', 'Parcelas Pagas', 'Comissão Leiloeiro', (isCaixa === "SIM" ? 'Dívida Condomínio' : 'Dívidas (IPTU+Cond.)'), 'Outros Custos (Capex/Doc)'],
+                        labels: ['Entrada/Sinal', 'Parcelas Pagas', 'Comissão Leiloeiro', 'Dívida Condomínio', 'Outros Custos (Capex/Doc)'],
                         datasets: [{
                             data: [entradaSinal, totalParcelasPagas, custoTaxaCaixa, custoCondominio, (custoDocFinal + custoAdvogado + custoReforma)],
                             backgroundColor: ['#2563eb', '#93c5fd', '#f59e0b', '#fb923c', '#f43f5e'],
@@ -1056,246 +1064,7 @@
                         }
                     }
                 });
-
-                // Atualiza o gráfico de lance máximo vs TMA
-                atualizarGraficoLanceMax();
             } catch (e) { console.error("Erro na compilação dos dados: ", e); }
-        }
-
-        // ═══ SIMULADOR DE LANCE MÁXIMO vs TMA ═══
-        let chartLM = null;
-
-        // Calcula a TIR mensal e o lucro para um determinado lance,
-        // mantendo todos os demais parâmetros atuais constantes.
-        // A entrada acompanha o % atual (entrada/lanceAtual) do campo.
-        function metricasParaLance(lance, params) {
-            const entrada = lance * params.pctEntrada;
-            const saldoIni = Math.max(0, lance - entrada);
-            let parcela = 0;
-            if (saldoIni > 0 && params.iMes > 0) {
-                parcela = saldoIni * params.iMes / (1 - Math.pow(1 + params.iMes, -params.prazoFin));
-            } else if (saldoIni > 0) {
-                parcela = saldoIni / params.prazoFin;
-            }
-            const saldoQuit = saldoDevedorPrice(saldoIni, parcela, params.iMes, params.meses);
-            const doc = lance * params.pDoc;
-            const baseLeilVal = (params.baseLeil === "AVALIACAO") ? params.vAval : lance;
-            const comLeil = baseLeilVal * params.pComLeil;
-            const cond = params.cond; // dívida fixa (não depende do lance)
-            const totalParc = parcela * params.meses;
-            const desemb = entrada + totalParc + comLeil + cond + doc + params.reforma + params.advogado;
-            const comVenda = params.vVenda * params.pComVenda;
-            let imp = 0;
-            if (params.regime === "PF") {
-                const base = lance + comLeil + cond + doc + params.reforma + params.advogado;
-                imp = Math.max(0, params.vVenda - base - comVenda) * 0.15;
-            } else if (params.regime === "PJ") {
-                imp = params.vVenda * 0.04;
-            }
-            const lucro = params.vVenda - saldoQuit - comVenda - imp - desemb;
-            // Fluxo de caixa para TIR
-            const ci = entrada + comLeil + cond + doc + params.reforma + params.advogado;
-            const receb = params.vVenda - saldoQuit - comVenda - imp;
-            const m = Math.max(1, Math.round(params.meses));
-            const fluxo = [-ci];
-            for (let t = 1; t <= m; t++) fluxo.push(t < m ? -parcela : receb - parcela);
-            let tir = 0;
-            if (desemb > 0 && (lucro + desemb) > 0) {
-                tir = calcularTIR(fluxo);
-                if (!isFinite(tir)) tir = 0;
-            } else if (lucro <= 0) {
-                // Mantém um valor negativo informativo para desenhar a curva descendo
-                tir = (desemb > 0) ? (lucro / desemb) * 100 / m : -10;
-            }
-            return { tir, lucro };
-        }
-
-        function atualizarGraficoLanceMax() {
-            const lanceAtual = parseFloat(document.getElementById('lanceMinimo').value) || 0;
-            const entradaAtual = parseFloat(document.getElementById('entradaSinal').value) || 0;
-            const vVenda = parseFloat(document.getElementById('vendaAlvo').value) || 0;
-            const vAval = parseFloat(document.getElementById('vAvaliacao').value) || 0;
-            const tma = parseFloat(document.getElementById('tmaInput').value) || 0;
-            const selicAnual = parseFloat(document.getElementById('selicAnual').value) / 100 || 0;
-            const sMen = (Math.pow(1 + selicAnual, 1 / 12) - 1) * 100;
-
-            // Taxa mensal do financiamento (mesma lógica de calcular())
-            const jurosInput = parseFloat(document.getElementById('jurosFinancAa').value);
-            const jurosPreenchido = !isNaN(jurosInput) && document.getElementById('jurosFinancAa').value.trim() !== '';
-            const prazoFin = parseFloat(document.getElementById('prazoTotalFinanc').value) || 420;
-            let iMes;
-            if (jurosPreenchido) {
-                iMes = Math.pow(1 + jurosInput / 100, 1 / 12) - 1;
-            } else {
-                const saldoIniAtual = Math.max(0, lanceAtual - entradaAtual);
-                const parcManual = parseFloat(document.getElementById('valorParcela').value) || 0;
-                iMes = taxaJurosFinanciamento(saldoIniAtual, parcManual, prazoFin);
-            }
-
-            const isCaixa = document.getElementById('isCaixa').value;
-            let cond = 0;
-            if (isCaixa === "SIM") {
-                const pCond = parseFloat(document.getElementById('pCondominio').value) || 0;
-                cond = vAval * (Math.min(pCond, 10) / 100);
-            } else {
-                cond = parseFloat(document.getElementById('dividasManual').value) || 0;
-            }
-
-            const params = {
-                pctEntrada: lanceAtual > 0 ? (entradaAtual / lanceAtual) : 0.2,
-                iMes, prazoFin, meses: parseFloat(document.getElementById('mesesCarregamento').value) || 1,
-                pDoc: (parseFloat(document.getElementById('pItbi').value) || 0
-                     + parseFloat(document.getElementById('pEscritura').value) || 0
-                     + parseFloat(document.getElementById('pRegistro').value) || 0) / 100,
-                baseLeil: document.getElementById('baseTaxaLeiloeiro').value,
-                vAval, pComLeil: parseFloat(document.getElementById('pComissaoLeiloeiro').value) / 100 || 0,
-                cond, reforma: parseFloat(document.getElementById('custoReforma').value) || 0,
-                advogado: parseFloat(document.getElementById('custoAdvogado').value) || 0,
-                vVenda, pComVenda: parseFloat(document.getElementById('pComissao').value) / 100 || 0,
-                regime: document.getElementById('regimeTributario').value
-            };
-            // Recalcula pDoc corretamente (a soma acima sofre com precedência de ||)
-            params.pDoc = ((parseFloat(document.getElementById('pItbi').value) || 0)
-                + (parseFloat(document.getElementById('pEscritura').value) || 0)
-                + (parseFloat(document.getElementById('pRegistro').value) || 0)) / 100;
-
-            // Eixo X: varre do menor lance plausível até um pouco acima da venda
-            const lanceMaxEscala = Math.max(vVenda, vAval, lanceAtual) * 1.05;
-            const passos = 60;
-            const labels = [], dadosTir = [], pontosLance = [];
-            for (let k = 0; k <= passos; k++) {
-                const lance = (lanceMaxEscala * k) / passos;
-                pontosLance.push(lance);
-                const r = metricasParaLance(lance, params);
-                labels.push(lance);
-                dadosTir.push(r.tir);
-            }
-
-            // Encontra os lances-teto por interpolação linear na curva (TIR decresce com o lance)
-            function lanceParaTir(alvo) {
-                for (let k = 1; k < pontosLance.length; k++) {
-                    const t0 = dadosTir[k - 1], t1 = dadosTir[k];
-                    if (t0 >= alvo && t1 < alvo) {
-                        const frac = (alvo - t0) / (t1 - t0);
-                        return pontosLance[k - 1] + frac * (pontosLance[k] - pontosLance[k - 1]);
-                    }
-                }
-                return null;
-            }
-            const lanceTMA = lanceParaTir(tma);
-            const lanceSelic = lanceParaTir(sMen);
-            const lanceBreak = lanceParaTir(0);
-
-            const f = (v) => v == null ? "—" : v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
-            document.getElementById('lanceTetoTMA').innerText = f(lanceTMA);
-            document.getElementById('cardLanceTMA').innerText = f(lanceTMA);
-            document.getElementById('cardLanceSelic').innerText = f(lanceSelic);
-            document.getElementById('cardLanceBreak').innerText = f(lanceBreak);
-
-            // Cor de cada ponto da curva conforme a zona (verde/âmbar/vermelho)
-            const corPonto = dadosTir.map(t => t >= tma ? '#10b981' : (t >= sMen ? '#f59e0b' : '#f43f5e'));
-
-            // Ponto do lance atual (bolinha azul)
-            const rAtual = metricasParaLance(lanceAtual, params);
-
-            const ctxLM = document.getElementById('chartLanceMax').getContext('2d');
-            if (chartLM) chartLM.destroy();
-            chartLM = new Chart(ctxLM, {
-                type: 'line',
-                data: {
-                    labels: labels.map(v => Math.round(v)),
-                    datasets: [
-                        {
-                            label: 'Rentabilidade mensal (TIR)',
-                            data: dadosTir,
-                            borderColor: '#1e293b',
-                            borderWidth: 2,
-                            pointRadius: 0,
-                            tension: 0.25,
-                            segment: {
-                                borderColor: (ctx) => {
-                                    const t = ctx.p1.parsed.y;
-                                    return t >= tma ? '#10b981' : (t >= sMen ? '#f59e0b' : '#f43f5e');
-                                }
-                            },
-                            fill: false
-                        },
-                        {
-                            // Marcador do lance atual
-                            label: 'Seu lance atual',
-                            data: [{ x: Math.round(lanceAtual), y: rAtual.tir }],
-                            type: 'scatter',
-                            pointBackgroundColor: '#2563eb',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2,
-                            pointRadius: 7,
-                            pointHoverRadius: 9
-                        }
-                    ]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
-                    scales: {
-                        x: {
-                            type: 'linear',
-                            title: { display: true, text: 'Valor do Lance (R$)', font: { size: 10, weight: 'bold' }, color: '#94a3b8' },
-                            ticks: {
-                                font: { size: 9 }, color: '#94a3b8', maxTicksLimit: 7,
-                                callback: (v) => 'R$ ' + (v / 1000).toFixed(0) + 'k'
-                            },
-                            grid: { color: '#f1f5f9' }
-                        },
-                        y: {
-                            min: Math.min(-2, sMen - 1),
-                            suggestedMax: Math.max(tma, sMen) * 2.2,
-                            title: { display: true, text: 'TIR mensal (%)', font: { size: 10, weight: 'bold' }, color: '#94a3b8' },
-                            ticks: { font: { size: 9 }, color: '#94a3b8', callback: (v) => v.toFixed(1) + '%' },
-                            grid: { color: '#f1f5f9' }
-                        }
-                    },
-                    plugins: {
-                        legend: { display: false },
-                        datalabels: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                title: (items) => 'Lance: ' + f(items[0].parsed.x),
-                                label: (item) => 'Rentab.: ' + item.parsed.y.toFixed(2) + '% a.m.'
-                            }
-                        }
-                    }
-                },
-                plugins: [{
-                    // Desenha as linhas-guia (TMA, Selic) e a linha vertical do lance-teto
-                    id: 'guias',
-                    afterDraw: (chart) => {
-                        const { ctx, chartArea, scales } = chart;
-                        const yTMA = scales.y.getPixelForValue(tma);
-                        const ySelic = scales.y.getPixelForValue(sMen);
-                        // Linha horizontal TMA
-                        ctx.save();
-                        ctx.setLineDash([5, 4]);
-                        ctx.strokeStyle = '#10b981'; ctx.lineWidth = 1.5;
-                        ctx.beginPath(); ctx.moveTo(chartArea.left, yTMA); ctx.lineTo(chartArea.right, yTMA); ctx.stroke();
-                        ctx.fillStyle = '#059669'; ctx.font = 'bold 9px Inter';
-                        ctx.fillText('TMA ' + tma.toFixed(1) + '%', chartArea.left + 4, yTMA - 4);
-                        // Linha horizontal Selic
-                        ctx.strokeStyle = '#f59e0b';
-                        ctx.beginPath(); ctx.moveTo(chartArea.left, ySelic); ctx.lineTo(chartArea.right, ySelic); ctx.stroke();
-                        ctx.fillStyle = '#d97706';
-                        ctx.fillText('Selic ' + sMen.toFixed(2) + '%', chartArea.left + 4, ySelic - 4);
-                        // Linha vertical do lance-teto da TMA
-                        if (lanceTMA != null) {
-                            const xT = scales.x.getPixelForValue(lanceTMA);
-                            ctx.setLineDash([4, 4]); ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 1.5;
-                            ctx.beginPath(); ctx.moveTo(xT, chartArea.top); ctx.lineTo(xT, chartArea.bottom); ctx.stroke();
-                            ctx.fillStyle = '#0f172a'; ctx.font = 'bold 9px Inter';
-                            ctx.fillText('teto', xT + 3, chartArea.top + 10);
-                        }
-                        ctx.restore();
-                    }
-                }]
-            });
         }
 
         window.addEventListener('load', () => {
