@@ -788,11 +788,14 @@
 
                 // ITBI + Escritura + Registro calculados automaticamente sobre o lance
                 const custoDocFinal = lanceMinimo * (pItbi + pEscritura + pRegistro) / 100;
-                let custoTaxaCaixa = 0;
+
+                // Comissão do leiloeiro: sempre aplicada, independente de ser leilão Caixa
+                const baseValorComissao = (baseTaxaLeiloeiro === "AVALIACAO") ? vAvaliacao : lanceMinimo;
+                const custoTaxaCaixa = baseValorComissao * pComissaoLeiloeiro;
+
+                // Dívida de condomínio: exclusiva do leilão Caixa
                 let custoCondominio = 0;
                 if (isCaixa === "SIM") {
-                    const baseValor = (baseTaxaLeiloeiro === "AVALIACAO") ? vAvaliacao : lanceMinimo;
-                    custoTaxaCaixa = baseValor * pComissaoLeiloeiro;
                     const pCond = parseFloat(document.getElementById('pCondominio').value) || 0;
                     custoCondominio = vAvaliacao * (Math.min(pCond, 10) / 100);
                     document.getElementById('condominioValorDisplay').value =
@@ -888,19 +891,19 @@
                 document.getElementById('tabInvestido').innerText = f(investimentoDesembolsado);
                 document.getElementById('pInvestido').innerText = p(investimentoDesembolsado);
 
-                // Rótulo dinâmico da comissão do leiloeiro
+                // Rótulo dinâmico da comissão do leiloeiro (sempre visível)
+                const baseTxt = (baseTaxaLeiloeiro === "AVALIACAO") ? "Avaliação" : "Lance";
+                document.getElementById('descTaxaCaixa').innerText =
+                    `Comissão Leiloeiro (${(pComissaoLeiloeiro*100).toFixed(1)}% s/ ${baseTxt})`;
+
+                // Dívida de condomínio: exclusiva do leilão Caixa
                 if (isCaixa === "SIM") {
-                    const baseTxt = (baseTaxaLeiloeiro === "AVALIACAO") ? "Avaliação" : "Lance";
-                    document.getElementById('descTaxaCaixa').innerText =
-                        `Comissão Leiloeiro (${(pComissaoLeiloeiro*100).toFixed(1)}% s/ ${baseTxt})`;
-                    // Linha de condomínio
                     const pCond = parseFloat(document.getElementById('pCondominio').value) || 0;
                     document.getElementById('descCondominio').innerText =
                         `Dívida de Condomínio (${pCond}% s/ Avaliação — máx. 10%)`;
                     document.getElementById('tabCondominio').innerText = f(custoCondominio);
                     document.getElementById('pCondominio2').innerText = p(custoCondominio);
                 } else {
-                    document.getElementById('descTaxaCaixa').innerText = "Comissão Leiloeiro (N/A)";
                     document.getElementById('tabCondominio').innerText = f(0);
                     document.getElementById('pCondominio2').innerText = "0.0%";
                 }
