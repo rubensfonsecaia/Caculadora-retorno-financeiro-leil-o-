@@ -122,9 +122,9 @@
                     </h2>
                     <div class="grid grid-cols-2 gap-3 mb-3">
                         <div class="input-group">
-                            <label>É Leilão da Caixa?</label>
+                            <label>Estimar Dívidas Extra</label>
                             <select id="isCaixa" class="text-xs font-bold border-amber-300 bg-amber-50/50" onchange="toggleCaixaField(); calcular();">
-                                <option value="SIM">Sim, aplicar taxa</option>
+                                <option value="SIM">Sim</option>
                                 <option value="NAO">Não</option>
                             </select>
                         </div>
@@ -135,7 +135,7 @@
                     </div>
                     <div class="grid grid-cols-2 gap-3 mb-3">
                         <div class="input-group" id="divBaseTaxa">
-                            <label>Base da Comissão</label>
+                            <label>Base da Comissão Leiloeiro</label>
                             <select id="baseTaxaLeiloeiro" class="text-xs font-bold border-amber-300 bg-amber-50/50" onchange="calcular()">
                                 <option value="LANCE">Sobre o Lance</option>
                                 <option value="AVALIACAO">Sobre Avaliação</option>
