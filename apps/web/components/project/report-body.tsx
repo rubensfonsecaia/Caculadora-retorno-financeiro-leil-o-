@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/card";
 import { VerdictCard } from "@/components/ui/verdict";
 import { APP_NAME } from "@/lib/brand";
 
-export function ReportBody({ name, address, inputs, r }: { name: string; address: string; inputs: Inputs; r: Result }) {
+export function ReportBody({ name, address, inputs, r, logoUrl }: { name: string; address: string; inputs: Inputs; r: Result; logoUrl?: string | null }) {
   const rows: [string, string][] = [
     ["Terreno", formatBRL(inputs.land.priceCents / 100)],
     ["Área construída", `${inputs.build.builtAreaM2.toLocaleString("pt-BR")} m²`],
@@ -29,6 +29,10 @@ export function ReportBody({ name, address, inputs, r }: { name: string; address
   return (
     <article className="grid gap-6">
       <header>
+        {logoUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={logoUrl} alt="Logo" className="mb-3 h-9 max-w-[12rem] object-contain" />
+        )}
         <p className="text-sm font-bold text-text-muted">{APP_NAME} · estudo de viabilidade</p>
         <h1 className="mt-1 break-words text-3xl">{name}</h1>
         {address && <p className="text-text-muted">{address}</p>}

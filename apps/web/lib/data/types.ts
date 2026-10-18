@@ -88,16 +88,21 @@ export class PlanLimitError extends Error {
 }
 
 /**
- * O contrato da camada de dados. Hoje: localStorage (local-repo.ts).
- * Depois: Supabase com as mesmas assinaturas (replica-backend).
+ * O contrato da camada de dados. Duas implementações: Supabase
+ * (supabase-repo.ts) e demonstração em localStorage (local-repo.ts).
  */
 export interface Repo {
   getSession(): Promise<Session | null>;
   signIn(email: string, name: string): Promise<Session>;
-  signOut(): Promise<void>;
+  /** everywhere: encerra a sessão em todos os aparelhos */
+  signOut(everywhere?: boolean): Promise<void>;
   deleteAccount(): Promise<void>;
 
   getProfile(): Promise<Profile>;
+  /** URL temporária do logo do usuário, ou null */
+  getLogoUrl(): Promise<string | null>;
+  uploadLogo(file: File): Promise<void>;
+  removeLogo(): Promise<void>;
   updateProfile(patch: Partial<Omit<Profile, "id" | "email" | "plan" | "isAdmin">>): Promise<Profile>;
 
   listProjects(): Promise<Project[]>;
@@ -118,4 +123,11 @@ export interface Repo {
   createShareLink(projectId: string): Promise<ShareLink>;
   revokeShareLink(id: string): Promise<void>;
   getSharedProject(token: string): Promise<Pick<Project, "name" | "address" | "units" | "inputs" | "updatedAt"> | null>;
+}
+
+/** Erro com código estável para a tela traduzir (ex.: "rate_limited"). */
+export class RepoError extends Error {
+  constructor(public code: string) {
+    super(code);
+  }
 }

@@ -11,6 +11,8 @@ import { Modal } from "@/components/ui/modal";
 import { Notice } from "@/components/ui/notice";
 import { useToast } from "@/components/ui/toast";
 import { repo, type CubValue, type Profile } from "@/lib/data";
+import { BACKEND } from "@/lib/env";
+import { errorMessage } from "@/lib/errors";
 
 /** CSV: uf;padrao;mes(AAAA-MM);valor_m2;url_da_fonte */
 function parseCubCsv(text: string): { rows: CubValue[]; errors: string[] } {
@@ -67,10 +69,15 @@ function CubImport() {
           setErrors(errors);
           if (!rows.length) return;
           setBusy(true);
-          const n = await repo.importCub(rows);
-          setBusy(false);
-          toast("success", `${n} valores importados.`);
-          if (!errors.length) setText("");
+          try {
+            const n = await repo.importCub(rows);
+            toast("success", `${n} valores importados.`);
+            if (!errors.length) setText("");
+          } catch (e) {
+            toast("error", errorMessage(e));
+          } finally {
+            setBusy(false);
+          }
         }}
       >
         Importar
@@ -79,10 +86,73 @@ function CubImport() {
   );
 }
 
+function LogoSection() {
+  const [url, setUrl] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const toast = useToast();
+  useEffect(() => {
+    repo.getLogoUrl().then(setUrl).catch(() => setUrl(null));
+  }, []);
+  if (BACKEND === "demo")
+    return (
+      <Card>
+        <h2 className="text-lg">Logo no relatório</h2>
+        <Notice tone="info" className="mt-3">
+          Disponível com a conta de verdade (Supabase configurado).
+        </Notice>
+      </Card>
+    );
+  return (
+    <Card>
+      <h2 className="text-lg">Logo no relatório</h2>
+      <p className="mb-4 mt-1 text-sm text-text-muted">PNG ou JPG, até 1 MB. Aparece no topo do relatório que você imprime.</p>
+      <div className="flex flex-wrap items-center gap-4">
+        {url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={url} alt="Seu logo" className="h-9 max-w-[12rem] rounded object-contain" />
+        ) : (
+          <span className="text-sm text-text-muted">Sem logo.</span>
+        )}
+        <label className="inline-flex h-[var(--layout-touch-target-min)] cursor-pointer items-center rounded-lg border border-border-input bg-surface px-4 text-sm font-bold focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-focus">
+          {busy ? "Enviando…" : "Escolher imagem"}
+          <input
+            type="file"
+            accept="image/png,image/jpeg"
+            className="sr-only"
+            disabled={busy}
+            onChange={async (e) => {
+              const f = e.target.files?.[0];
+              e.target.value = "";
+              if (!f) return;
+              if (f.size > 1024 * 1024) return toast("error", errorMessage("too_large"));
+              setBusy(true);
+              try {
+                await repo.uploadLogo(f);
+                setUrl(await repo.getLogoUrl());
+                toast("success", "Logo salvo.");
+              } catch (err) {
+                toast("error", errorMessage(err));
+              } finally {
+                setBusy(false);
+              }
+            }}
+          />
+        </label>
+        {url && (
+          <Button variant="ghost" onClick={async () => (await repo.removeLogo(), setUrl(null))}>
+            Remover
+          </Button>
+        )}
+      </div>
+    </Card>
+  );
+}
+
 function Settings() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [busy, setBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const toast = useToast();
   const router = useRouter();
   useEffect(() => {
@@ -101,15 +171,20 @@ function Settings() {
           onSubmit={async (e) => {
             e.preventDefault();
             setBusy(true);
-            await repo.updateProfile({
+            try {
+              await repo.updateProfile({
               name: profile.name,
               defaultTmaAmBps: profile.defaultTmaAmBps,
               defaultSelicAaBps: profile.defaultSelicAaBps,
               defaultUf: profile.defaultUf,
-              defaultTaxRegime: profile.defaultTaxRegime,
-            });
-            setBusy(false);
-            toast("success", "Premissas salvas.");
+                defaultTaxRegime: profile.defaultTaxRegime,
+              });
+              toast("success", "Premissas salvas.");
+            } catch (e) {
+              toast("error", errorMessage(e));
+            } finally {
+              setBusy(false);
+            }
           }}
         >
           <TextField label="Seu nome" value={profile.name} onChange={(name) => set({ name })} />
@@ -129,6 +204,8 @@ function Settings() {
           </div>
         </form>
       </Card>
+
+      <LogoSection />
 
       {profile.isAdmin && <CubImport />}
 
@@ -150,22 +227,40 @@ function Settings() {
           >
             Sair
           </Button>
+          {BACKEND === "supabase" && (
+            <Button
+              variant="secondary"
+              onClick={async () => {
+                await repo.signOut(true);
+                router.push("/");
+              }}
+            >
+              Sair de todos os aparelhos
+            </Button>
+          )}
           <Button variant="danger" onClick={() => setConfirmDelete(true)}>
             Excluir conta
           </Button>
         </div>
       </Card>
 
-      <Modal open={confirmDelete} onOpenChange={setConfirmDelete} title="Excluir sua conta?" description="Todos os projetos, cenários e links somem. Não dá para desfazer.">
+      <Modal open={confirmDelete} onOpenChange={setConfirmDelete} title="Excluir sua conta?" description="Todos os projetos, cenários, links e o logo somem, e a assinatura é cancelada. Não dá para desfazer.">
         <div className="flex justify-end gap-3">
           <Button variant="secondary" onClick={() => setConfirmDelete(false)}>
             Cancelar
           </Button>
           <Button
             variant="danger"
+            loading={deleting}
             onClick={async () => {
-              await repo.deleteAccount();
-              router.push("/");
+              setDeleting(true);
+              try {
+                await repo.deleteAccount();
+                router.push("/");
+              } catch (e) {
+                toast("error", errorMessage(e));
+                setDeleting(false);
+              }
             }}
           >
             Excluir tudo

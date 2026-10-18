@@ -1,9 +1,11 @@
 "use client";
 
-import { compute, defaultInputs, inputsSchema, INPUTS_VERSION, type Inputs } from "@calc/core";
+import { defaultInputs, inputsSchema, INPUTS_VERSION, type Inputs } from "@calc/core";
+import { summarize } from "./rows";
 import {
   FREE_PROJECT_LIMIT,
   PlanLimitError,
+  RepoError,
   type CubValue,
   type Profile,
   type Project,
@@ -79,16 +81,6 @@ function requireUser(): Session {
   return s;
 }
 
-function summarize(inputs: Inputs) {
-  const r = compute(inputs);
-  if (!r.ok) return { verdict: null, profitCents: null, totalCostCents: null, irrAmBps: null };
-  return {
-    verdict: r.verdict,
-    profitCents: Math.round(r.profit * 100),
-    totalCostCents: Math.round(r.totalCost * 100),
-    irrAmBps: r.irrAm != null ? Math.round(r.irrAm * 10_000) : null,
-  };
-}
 
 function own<T extends { userId: string }>(p: T | undefined, s: Session): T | undefined {
   return p && p.userId === s.userId ? p : undefined;
@@ -174,6 +166,14 @@ export const localRepo: Repo = {
     commit();
     await this.signOut();
   },
+
+  async getLogoUrl() {
+    return null;
+  },
+  async uploadLogo() {
+    throw new RepoError("unsupported_in_demo");
+  },
+  async removeLogo() {},
 
   async getProfile() {
     const s = requireUser();

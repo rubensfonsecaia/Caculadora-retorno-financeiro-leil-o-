@@ -10,6 +10,8 @@ import { useToast } from "@/components/ui/toast";
 import { missingText } from "@/components/ui/verdict";
 import { repo } from "@/lib/data";
 import { useLive, useResult } from "@/lib/hooks";
+import { BACKEND } from "@/lib/env";
+import { errorMessage } from "@/lib/errors";
 
 function ShareLinks({ projectId }: { projectId: string }) {
   const { data: links = [] } = useLive(() => repo.listShareLinks(projectId), [projectId]);
@@ -23,8 +25,13 @@ function ShareLinks({ projectId }: { projectId: string }) {
           variant="secondary"
           size="sm"
           onClick={async () => {
-            const l = await repo.createShareLink(projectId);
-            const url = `${location.origin}/p/${l.token}`;
+            let url: string;
+            try {
+              const l = await repo.createShareLink(projectId);
+              url = `${location.origin}/p/${l.token}`;
+            } catch (e) {
+              return toast("error", errorMessage(e));
+            }
             try {
               await navigator.clipboard.writeText(url);
               toast("success", "Link copiado.");
@@ -52,7 +59,7 @@ function ShareLinks({ projectId }: { projectId: string }) {
           ))}
         </ul>
       )}
-      <Notice tone="warn">Na demonstração o link só abre neste navegador. Funciona para qualquer pessoa depois que o banco de dados entrar.</Notice>
+      {BACKEND === "demo" && <Notice tone="warn">Na demonstração o link só abre neste navegador. Com o Supabase configurado, abre para qualquer pessoa.</Notice>}
     </div>
   );
 }
@@ -60,6 +67,7 @@ function ShareLinks({ projectId }: { projectId: string }) {
 export default function RelatorioPage() {
   const { project } = useProjectCtx();
   const r = useResult(project?.inputs);
+  const { data: logoUrl } = useLive(() => repo.getLogoUrl().catch(() => null), []);
   if (!project) return null;
   return (
     <div className="mx-auto grid max-w-[56rem] gap-6">
@@ -74,7 +82,7 @@ export default function RelatorioPage() {
         </Button>
       </div>
       {r?.ok ? (
-        <ReportBody name={project.name} address={project.address} inputs={project.inputs} r={r} />
+        <ReportBody name={project.name} address={project.address} inputs={project.inputs} r={r} logoUrl={logoUrl} />
       ) : (
         <Notice tone="info">Preencha {r ? missingText(r.missing) : "os dados"} para gerar o relatório.</Notice>
       )}
