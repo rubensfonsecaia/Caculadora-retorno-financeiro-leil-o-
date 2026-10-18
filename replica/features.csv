@@ -1,46 +1,46 @@
 feature,area,priority,original,clone,notes
-Calculadora em uma tela sem cadastro (resultado ao digitar),calculadora,must,yes,no,base: calc de leilão
-Custo do terreno com ITBI escritura e registro,terreno,must,yes,no,fontes 12 13; calc de leilão
-Custo da obra por área x CUB/m² por estado e padrão,obra,must,yes,no,fontes 2-5
-CUB automático com opção manual,obra,must,yes,no,toggle Estimar/Manual da calc de leilão
-Custos que o CUB não cobre (projetos alvará habite-se ligações muro),obra,must,yes,no,fonte 4
-Contingência / imprevistos (%),obra,must,yes,no,fonte 13 sugere 30-40% p/ iniciantes
-Prazo de obra e prazo de venda (meses),prazo,must,yes,no,fonte 10
-Preço de venda (total ou R$/m²),venda,must,yes,no,
-Corretagem de venda (%),venda,must,yes,no,
-Regime fiscal PF ganho de capital 15% / PJ RET / isento,impostos,must,yes,no,calc de leilão; fontes 17-19; revisar com contador
-Lucro líquido e margem sobre venda,resultado,must,yes,no,
-TIR mensal e anual,resultado,must,yes,no,fontes 8 10 11
-VPL e comparação com TMA,resultado,must,yes,no,fontes 10 11
-Veredito viável / marginal / inviável,resultado,must,yes,no,calc de leilão
-ROI sobre capital desembolsado e múltiplo (MoC),resultado,must,yes,no,calc de leilão
-Responsivo no celular,plataforma,must,yes,no,web + mobile
-Conta (e-mail e Google) e salvar projetos,conta,must,yes,no,
-Lista de projetos (duplicar excluir),projetos,must,yes,no,
-Exportar relatório em PDF,compartilhar,must,yes,no,calc de leilão
-Memorial de cálculo explicando cada métrica,resultado,must,yes,no,calc de leilão
-Financiamento da obra (% taxa SAC/Price),financiamento,should,yes,no,"juros de obra" fonte 13
-Liberação do financiamento por medição/etapa,financiamento,should,no,no,guess: comum em plano empresário
-Curva de desembolso (linear / curva S / manual),prazo,should,yes,no,fontes 15 16
-Fluxo de caixa mês a mês com exposição máxima de caixa,fluxo,should,yes,no,fontes 8 15
-Payback simples e descontado,resultado,should,yes,no,fonte 11
-Comparativo TIR x TMA x Selic x CDI,resultado,should,yes,no,calc de leilão
-Cenários esperado / pessimista / muito pessimista,cenários,should,yes,no,fonte 10
-Preço máximo a pagar no terreno (meta de TIR ou margem),resultado,should,no,no,lance teto da calc de leilão; diferencial
-Aviso de habitualidade PF -> equiparação a PJ,impostos,should,no,no,fonte 17; diferencial
-PJ lucro presumido,impostos,should,yes,no,fonte 19; revisar com contador
-BDI (%),obra,should,yes,no,fonte 12
-Várias unidades no mesmo terreno (geminadas),projetos,should,yes,no,fontes 10 12
-Premissas padrão do usuário (TMA Selic UF regime),config,should,no,no,
-Planos e assinatura (Stripe),cobrança,should,yes,no,produto para vender
-Comparar 2 a 4 projetos lado a lado,projetos,could,no,no,diferencial
-Gráfico tornado de sensibilidade,cenários,could,no,no,
-Ponto de equilíbrio (preço mínimo de venda),cenários,could,no,no,
-Link público só leitura,compartilhar,could,no,no,
+Calculadora em uma tela sem cadastro (resultado ao digitar),calculadora,must,yes,yes,base: calc de leilão; S02
+Custo do terreno com ITBI escritura e registro,terreno,must,yes,yes,fontes 12 13; calc de leilão; S05; S02 junta os três num campo
+Custo da obra por área x CUB/m² por estado e padrão,obra,must,yes,yes,fontes 2-5; S06
+CUB automático com opção manual,obra,must,yes,partial,"toggle Estimar/Manual da calc de leilão; S06: modo tabela funciona, mas a tabela começa vazia; admin importa CSV com link da fonte (S16). Sem dados oficiais embutidos"
+Custos que o CUB não cobre (projetos alvará habite-se ligações muro),obra,must,yes,yes,fonte 4; S06; projetos no mês 0
+Contingência / imprevistos (%),obra,must,yes,yes,fonte 13 sugere 30-40% p/ iniciantes; S06
+Prazo de obra e prazo de venda (meses),prazo,must,yes,yes,fonte 10; S07
+Preço de venda (total ou R$/m²),venda,must,yes,yes,S09
+Corretagem de venda (%),venda,must,yes,yes,S09
+Regime fiscal PF ganho de capital 15% / PJ RET / isento,impostos,must,yes,yes,calc de leilão; fontes 17-19; revisar com contador; S10; alíquotas ainda sem revisão de contador
+Lucro líquido e margem sobre venda,resultado,must,yes,yes,S11
+TIR mensal e anual,resultado,must,yes,yes,fontes 8 10 11; S11; null quando há mais de uma raiz
+VPL e comparação com TMA,resultado,must,yes,yes,fontes 10 11; S11
+Veredito viável / marginal / inviável,resultado,must,yes,yes,calc de leilão; S02 S11
+ROI sobre capital desembolsado e múltiplo (MoC),resultado,must,yes,yes,calc de leilão; S11
+Responsivo no celular,plataforma,must,yes,yes,web + mobile; 390 e 1440 sem rolagem horizontal; barra de resultado fixa
+Conta (e-mail e Google) e salvar projetos,conta,must,yes,partial,"login de demonstração (só e-mail, localStorage); Google e conta real no /replica-backend"
+Lista de projetos (duplicar excluir),projetos,must,yes,yes,"S04 com busca, filtro, arquivar; dados locais até o backend"
+Exportar relatório em PDF,compartilhar,must,yes,yes,calc de leilão; S15 imprimir/salvar PDF pelo navegador
+Memorial de cálculo explicando cada métrica,resultado,must,yes,yes,calc de leilão; S11 S15
+Financiamento da obra (% taxa SAC/Price),financiamento,should,yes,partial,"juros de obra fonte 13; S08: % financiado, juros, carência, quitação na venda; SAC/Price depois da venda não modelado"
+Liberação do financiamento por medição/etapa,financiamento,should,no,yes,guess: comum em plano empresário; S08
+Curva de desembolso (linear / curva S / manual),prazo,should,yes,yes,fontes 15 16; S07
+Fluxo de caixa mês a mês com exposição máxima de caixa,fluxo,should,yes,yes,fontes 8 15; S12
+Payback simples e descontado,resultado,should,yes,yes,fonte 11; S11
+Comparativo TIR x TMA x Selic x CDI,resultado,should,yes,yes,"calc de leilão; S11; CDI = Selic − 0,10 p.p."
+Cenários esperado / pessimista / muito pessimista,cenários,should,yes,yes,fonte 10; S13 + cenários próprios
+Preço máximo a pagar no terreno (meta de TIR ou margem),resultado,should,no,yes,"lance teto da calc de leilão; diferencial; S02 S11: TMA, Selic, sem prejuízo"
+Aviso de habitualidade PF -> equiparação a PJ,impostos,should,no,yes,fonte 17; diferencial; S10
+PJ lucro presumido,impostos,should,yes,yes,"fonte 19; revisar com contador; S10; 5,93% sem adicional de IR, sem revisão de contador"
+BDI (%),obra,should,yes,yes,fonte 12; S06
+Várias unidades no mesmo terreno (geminadas),projetos,should,yes,partial,fontes 10 12; valores do conjunto funcionam; campo de nº de unidades existe nos dados mas não na tela
+Premissas padrão do usuário (TMA Selic UF regime),config,should,no,yes,S16; aplicadas em estudos novos
+Planos e assinatura (Stripe),cobrança,should,yes,partial,"produto para vender; S17 só com a estrutura; pagamento no /replica-backend, preço no /replica-launch"
+Comparar 2 a 4 projetos lado a lado,projetos,could,no,yes,diferencial; S14
+Gráfico tornado de sensibilidade,cenários,could,no,yes,S13
+Ponto de equilíbrio (preço mínimo de venda),cenários,could,no,yes,S13
+Link público só leitura,compartilhar,could,no,partial,S15 cria/revoga; /p/[token] só abre no mesmo navegador até o backend
 PDF com logo do usuário,compartilhar,could,no,no,para engenheiros que atendem clientes
-App nas lojas (iOS e Android),plataforma,could,yes,no,metrique (iOS) fonte 20; PWA antes
-Uso offline no mobile,plataforma,could,no,no,
-Status do projeto (rascunho / em obra / vendido),projetos,could,no,no,
+App nas lojas (iOS e Android),plataforma,could,yes,no,metrique (iOS) fonte 20; PWA antes; Expo depois da web
+Uso offline no mobile,plataforma,could,no,no,"calcula sem rede depois de carregar, mas sem service worker"
+Status do projeto (rascunho / em obra / vendido),projetos,could,no,yes,S04 S11
 Registrar custo real x previsto durante a obra,projetos,could,no,no,perto de gestão de obra; avaliar depois
 Dados de preço por bairro e legislação urbana,mercado,skip,yes,skip,dados proprietários dos ERPs (fonte 6); usuário digita o R$/m²
 Orçamento detalhado SINAPI item a item,obra,skip,yes,skip,outro produto (orçamento); fica a estimativa por m²
