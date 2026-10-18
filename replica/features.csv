@@ -15,7 +15,7 @@ VPL e comparação com TMA,resultado,must,yes,yes,fontes 10 11; S11
 Veredito viável / marginal / inviável,resultado,must,yes,yes,calc de leilão; S02 S11
 ROI sobre capital desembolsado e múltiplo (MoC),resultado,must,yes,yes,calc de leilão; S11
 Responsivo no celular,plataforma,must,yes,yes,web + mobile; 390 e 1440 sem rolagem horizontal; barra de resultado fixa
-Conta (e-mail e Google) e salvar projetos,conta,must,yes,partial,"login de demonstração (só e-mail, localStorage); Google e conta real no /replica-backend"
+Conta (e-mail e Google) e salvar projetos,conta,must,yes,partial,"login de demonstração (só e-mail, localStorage); Google e conta real no /replica-backend; backend: Supabase Auth (senha, link, nova senha, Google) e dados com RLS implementados; falta testar contra um projeto Supabase real"
 Lista de projetos (duplicar excluir),projetos,must,yes,yes,"S04 com busca, filtro, arquivar; dados locais até o backend"
 Exportar relatório em PDF,compartilhar,must,yes,yes,calc de leilão; S15 imprimir/salvar PDF pelo navegador
 Memorial de cálculo explicando cada métrica,resultado,must,yes,yes,calc de leilão; S11 S15
@@ -32,12 +32,12 @@ PJ lucro presumido,impostos,should,yes,yes,"fonte 19; revisar com contador; S10;
 BDI (%),obra,should,yes,yes,fonte 12; S06
 Várias unidades no mesmo terreno (geminadas),projetos,should,yes,partial,fontes 10 12; valores do conjunto funcionam; campo de nº de unidades existe nos dados mas não na tela
 Premissas padrão do usuário (TMA Selic UF regime),config,should,no,yes,S16; aplicadas em estudos novos
-Planos e assinatura (Stripe),cobrança,should,yes,partial,"produto para vender; S17 só com a estrutura; pagamento no /replica-backend, preço no /replica-launch"
+Planos e assinatura (Stripe),cobrança,should,yes,partial,"produto para vender; S17 só com a estrutura; pagamento no /replica-backend, preço no /replica-launch; backend: Checkout, Portal e webhook implementados e testados offline; falta chave de teste do Stripe e preço"
 Comparar 2 a 4 projetos lado a lado,projetos,could,no,yes,diferencial; S14
 Gráfico tornado de sensibilidade,cenários,could,no,yes,S13
 Ponto de equilíbrio (preço mínimo de venda),cenários,could,no,yes,S13
-Link público só leitura,compartilhar,could,no,partial,S15 cria/revoga; /p/[token] só abre no mesmo navegador até o backend
-PDF com logo do usuário,compartilhar,could,no,no,para engenheiros que atendem clientes
+Link público só leitura,compartilhar,could,no,partial,"S15 cria/revoga; /p/[token] só abre no mesmo navegador até o backend; backend: get_shared_project via RPC, abre para qualquer pessoa com Supabase; falta teste real"
+PDF com logo do usuário,compartilhar,could,no,partial,"para engenheiros que atendem clientes; backend: upload PNG/JPG ≤1 MB em bucket privado, aparece no relatório; falta teste real"
 App nas lojas (iOS e Android),plataforma,could,yes,no,metrique (iOS) fonte 20; PWA antes; Expo depois da web
 Uso offline no mobile,plataforma,could,no,no,"calcula sem rede depois de carregar, mas sem service worker"
 Status do projeto (rascunho / em obra / vendido),projetos,could,no,yes,S04 S11
