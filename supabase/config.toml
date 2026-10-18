@@ -1,0 +1,63 @@
+# Supabase local (`supabase start`). No projeto hospedado, as mesmas opções
+# ficam no painel (Authentication) ou vão com `supabase config push`.
+project_id = "calculadora-construcao"
+
+[api]
+port = 54321
+schemas = ["public"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 17
+
+[db.seed]
+enabled = false # dados de teste: scripts/seed.mjs (cria usuários pela API admin)
+
+[storage]
+file_size_limit = "1MiB"
+
+[auth]
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/callback"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+enable_signup = true
+minimum_password_length = 8
+password_requirements = "letters_digits"
+
+[auth.rate_limit]
+email_sent = 4            # e-mails por hora (confirmação, link, nova senha)
+sign_in_sign_ups = 30     # por 5 minutos, por IP
+token_verifications = 30  # por 5 minutos, por IP
+token_refresh = 150
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+double_confirm_changes = true
+secure_password_change = true
+otp_expiry = 3600
+
+[auth.email.template.confirmation]
+subject = "Confirme seu e-mail"
+content_path = "./supabase/templates/confirmacao.html"
+
+[auth.email.template.magic_link]
+subject = "Seu link de acesso"
+content_path = "./supabase/templates/link-de-acesso.html"
+
+[auth.email.template.recovery]
+subject = "Criar uma senha nova"
+content_path = "./supabase/templates/nova-senha.html"
+
+[auth.email.template.email_change]
+subject = "Confirme o novo e-mail"
+content_path = "./supabase/templates/troca-de-email.html"
+
+[auth.external.google]
+enabled = true
+client_id = "env(SUPABASE_AUTH_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_GOOGLE_SECRET)"
+skip_nonce_check = false
