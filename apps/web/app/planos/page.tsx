@@ -1,6 +1,8 @@
 import { Check } from "lucide-react";
 import type { Metadata } from "next";
-import { Button, ButtonLink } from "@/components/ui/button";
+import { Suspense } from "react";
+import { ProActions } from "@/components/billing/plan-actions";
+import { ButtonLink } from "@/components/ui/button";
 import { Card, PageTitle } from "@/components/ui/card";
 import { Notice } from "@/components/ui/notice";
 
@@ -21,9 +23,9 @@ const PLANS = [
     for: "Para quem constrói sempre",
     items: ["Projetos ilimitados", "Comparar até 4 projetos", "Relatório com a sua marca", "Links para sócio, banco ou cliente"],
     cta: (
-      <Button className="w-full" disabled title="Pagamento entra no próximo passo">
-        Assinar (em breve)
-      </Button>
+      <Suspense>
+        <ProActions />
+      </Suspense>
     ),
   },
 ];
@@ -51,7 +53,7 @@ export default function PlanosPage() {
         ))}
       </div>
       <Notice tone="info" className="mt-6">
-        Preço e pagamento ainda não estão ligados. Eles chegam com o backend (Stripe) e com a definição de preço do lançamento.
+        O pagamento é feito na página segura do Stripe; nenhum dado de cartão passa por aqui. Cancelar é um clique em “Gerenciar ou cancelar”. O preço final sai no lançamento.
       </Notice>
     </>
   );

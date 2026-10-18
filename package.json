@@ -8,5 +8,13 @@
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
     "lint": "pnpm --filter web lint"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "2.117.2"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": "8.5.28"
+    }
   }
 }
