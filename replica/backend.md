@@ -113,4 +113,4 @@ localhost:3000/api/stripe/webhook`, `pnpm --filter web dev`.
 - [x] sem dados do usuário em URLs ou logs (logs só com códigos; e-mail nunca logado). Exceção conhecida: o token do link compartilhado está na URL, por definição (144 bits, revogável)
 - [x] dependências auditadas: produção sem vulnerabilidades conhecidas (postcss do Next forçado para 8.5.28; vitest 3 → 4.1.11). Restam 2 só de build: `braces` (sem versão corrigida) e `postcss-selector-parser` do Tailwind 3 (corrigir exige Tailwind 4); ambos só leem o código do próprio projeto
 - [ ] política de privacidade listando Supabase, Vercel, Stripe, Resend, Google, Sentry e Plausible: texto vem no `/replica-launch`, página no `/replica-deploy`
-- [ ] desarquivar projeto não confere o limite do plano grátis (o trigger só olha inserção). Baixo risco; corrigir no `/replica-test`
+- [x] desarquivar projeto confere o limite do plano grátis (BUG-002, migration `20261019000003`, teste em `supabase/tests/plan_limit.sql`)

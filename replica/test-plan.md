@@ -6,6 +6,19 @@ seed). Specs em `apps/web/e2e/`, um por fluxo. Em todo teste: falha com erro no
 console, falha com resposta 5xx, e varredura de acessibilidade (axe, WCAG 2.2 AA)
 em cada tela visitada.
 
+## Resultado (2026-10-19, build `3707451`)
+
+| suíte | casos | passou | falhou |
+| --- | --- | --- | --- |
+| e2e Playwright (desktop 1440 + celular 390, axe em cada tela, claro e escuro) | 54 | 54 | 0 (duas rodadas seguidas) |
+| unit `packages/calc` | 37 | 37 | 0 |
+| unit `apps/web` (webhook, assinatura, rotas) | 19 | 19 | 0 |
+| SQL (`supabase/tests/run.sh`) | 2 grupos | 2 | 0 |
+| manual (serviços reais) | 12 | — | não rodado: precisa das suas contas |
+
+Primeira rodada: 40 de 54. Os bugs achados estão em `bugs.md` (10, todos corrigidos).
+Como rodar: `pnpm --filter web e2e`, `pnpm -r test`, `DATABASE_URL=… supabase/tests/run.sh`.
+
 Legenda de `auto`: **e2e** (Playwright), **unit** (Vitest, `packages/calc` ou
 `apps/web/test`), **sql** (Postgres local com o `auth` imitado, ver
 `backend.md`), **manual** (precisa de serviço real; lista no fim).
