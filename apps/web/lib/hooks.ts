@@ -2,7 +2,7 @@
 
 import { compute, type Inputs, type Result, type Incomplete } from "@calc/core";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { repo, subscribe, type Project, type ProjectPatch, type Session } from "./data";
+import { PlanLimitError, repo, subscribe, type Project, type ProjectPatch, type Session } from "./data";
 
 /** Recarrega `load` sempre que a camada de dados avisa que mudou. */
 export function useLive<T>(load: () => Promise<T>, deps: unknown[]): { data: T | undefined; loading: boolean; error: Error | null } {
@@ -37,7 +37,7 @@ export function useResult(inputs: Inputs | undefined): Result | Incomplete | nul
   return useMemo(() => (inputs ? compute(inputs) : null), [inputs]);
 }
 
-export type SaveState = "idle" | "saving" | "saved" | "conflict" | "error";
+export type SaveState = "idle" | "saving" | "saved" | "conflict" | "error" | "limit" | "signed_out";
 
 /**
  * Projeto com edição local e autosave (debounce). Manda a versão que leu;
@@ -79,12 +79,29 @@ export function useProjectEditor(id: string) {
         setConflict(r.current);
         setSaveState("conflict");
       } else setSaveState("error");
-    } catch {
-      setSaveState("error");
+    } catch (e) {
+      if (e instanceof PlanLimitError) {
+        // desfaz na tela a mudança de situação que o limite recusou
+        if (patch.status) setProject((cur) => (cur ? { ...cur, status: "arquivado" } : cur));
+        setSaveState("limit");
+      } else if (!(await repo.getSession().catch(() => null))) setSaveState("signed_out"); // BUG-008
+      else setSaveState("error");
     }
   }, [id]);
 
   useEffect(() => () => void flush(), [flush]);
+
+  // BUG-010: fechar ou recarregar com edição ainda no debounce perdia a edição
+  // em silêncio; agora o navegador pergunta antes de sair.
+  useEffect(() => {
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!Object.keys(pending.current).length) return;
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, []);
 
   const patch = useCallback(
     (p: ProjectPatch) => {

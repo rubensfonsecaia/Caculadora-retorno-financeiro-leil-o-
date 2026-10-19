@@ -67,7 +67,7 @@ export async function saveProjectAction(id: unknown, version: unknown, patch: un
 
   // concorrência otimista: só grava se ninguém salvou depois da versão lida
   const { data, error } = await a.db.from("projects").update(row).eq("id", pid.data).eq("version", ver.data).select();
-  if (error) return fail("db_error");
+  if (error) return fail(error.message.includes("plan_limit_reached") ? "plan_limit" : "db_error");
   if (data.length) return { ok: true, data: { ok: true, project: projectFromRow(data[0]) } };
   const { data: cur } = await a.db.from("projects").select().eq("id", pid.data).maybeSingle();
   return { ok: true, data: cur ? { ok: false, reason: "conflict", current: projectFromRow(cur) } : { ok: false, reason: "not_found" } };

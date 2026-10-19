@@ -49,7 +49,8 @@ test.describe("F04 testar cenários", () => {
       await page.getByRole("dialog").getByLabel("Nome").fill("Igual");
       await page.getByRole("dialog").getByRole("button", { name: "Salvar" }).click();
     }
-    await expect(page.getByText(/Já existe um cenário com esse nome|Não deu para salvar/).first()).toBeVisible();
+    await expect(page.getByText("Já existe um cenário com esse nome.").first()).toBeVisible();
+    await page.keyboard.press("Escape"); // fecha o modal que ficou aberto
     await expect(page.getByRole("rowheader", { name: "Igual" })).toHaveCount(1);
   });
 
@@ -161,7 +162,8 @@ test.describe("F06 mandar o estudo para alguém", () => {
 test.describe("F07 assinar e cancelar", () => {
   test("F07-E3 checkout e portal recusam sem login; cron sem segredo", async ({ request }) => {
     // modo demonstração: sem Supabase não há sessão, então nada passa
-    expect((await request.post("/api/stripe/checkout", { data: { interval: "month" } })).status()).toBeLessThan(500);
+    expect((await request.post("/api/stripe/checkout", { data: { interval: "month" } })).status()).toBe(503);
+    expect((await request.post("/api/stripe/portal")).status()).toBe(503);
     expect([401, 404]).toContain((await request.get("/api/cron/prune")).status());
     expect((await request.post("/api/stripe/webhook", { data: "{}" })).status()).toBe(400);
   });

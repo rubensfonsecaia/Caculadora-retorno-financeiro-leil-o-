@@ -61,7 +61,7 @@ function Compare() {
       {chosen.length < 2 ? (
         <p className="text-sm text-text-muted">Marque mais um projeto.</p>
       ) : (
-        <Card className="overflow-x-auto p-0">
+        <Card tabIndex={0} role="region" aria-label="Comparação, role para os lados" className="overflow-x-auto p-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus">
           <table className="w-full min-w-[36rem] text-sm tabular-nums">
             <thead>
               <tr>

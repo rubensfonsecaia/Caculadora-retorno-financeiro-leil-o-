@@ -1,6 +1,7 @@
 import { stripe } from "@/lib/billing/stripe";
-import { SITE_URL } from "@/lib/env";
+import { BACKEND, SITE_URL } from "@/lib/env";
 import { allow } from "@/lib/rate-limit";
+import { serverEnv } from "@/lib/server-env";
 import { currentUser } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -9,6 +10,8 @@ export const runtime = "nodejs";
 // clique. Configure no painel do Stripe (Settings > Billing > Customer portal)
 // com "cancelar" ligado.
 export async function POST() {
+  // BUG-003: sem Supabase/Stripe configurados, responde 503 em vez de quebrar
+  if (BACKEND === "demo" || !serverEnv().STRIPE_SECRET_KEY) return Response.json({ error: "not_configured" }, { status: 503 });
   const { db, user } = await currentUser();
   if (!user) return Response.json({ error: "not_authenticated" }, { status: 401 });
   if (!(await allow(`portal:${user.id}`, 10, 600))) return Response.json({ error: "rate_limited" }, { status: 429 });

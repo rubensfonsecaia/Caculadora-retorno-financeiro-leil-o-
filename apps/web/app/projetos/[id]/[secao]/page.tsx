@@ -27,6 +27,7 @@ import { Notice } from "@/components/ui/notice";
 import { useToast } from "@/components/ui/toast";
 import { missingText, VerdictBadge, VerdictCard } from "@/components/ui/verdict";
 import { repo, type Scenario } from "@/lib/data";
+import { errorMessage } from "@/lib/errors";
 import { useLive, useResult } from "@/lib/hooks";
 
 function FormCard({ title, text, children }: { title: string; text?: string; children: React.ReactNode }) {
@@ -44,7 +45,7 @@ function MonthlyTable({ r }: { r: Result }) {
   const k = (v: number) => (Math.abs(v) < 0.5 ? "0" : formatBRL(v));
   const cols = ["Terreno", "Obra", "Financ.", "Venda", "Imposto", "Saldo do mês", "Acumulado"];
   return (
-    <div className="overflow-x-auto">
+    <div tabIndex={0} role="region" aria-label="Fluxo de caixa mês a mês, role para os lados" className="overflow-x-auto rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus">
       <table className="w-full min-w-[48rem] whitespace-nowrap text-sm tabular-nums">
         <caption className="mb-2 text-left font-bold">Fluxo de caixa mês a mês</caption>
         <thead>
@@ -119,8 +120,8 @@ function ScenarioEditor({ open, onClose, projectId, initial }: { open: boolean; 
           try {
             await repo.upsertScenario({ ...s, name: s.name.trim() || "Meu cenário", projectId, id: initial?.id });
             onClose();
-          } catch {
-            toast("error", "Não deu para salvar o cenário.");
+          } catch (err) {
+            toast("error", errorMessage(err));
           } finally {
             setBusy(false);
           }
@@ -171,7 +172,7 @@ function Scenarios({ inputs, base, projectId }: { inputs: Inputs; base: Result; 
             Novo cenário
           </Button>
         </div>
-        <div className="overflow-x-auto">
+        <div tabIndex={0} role="region" aria-label="Tabela de cenários, role para os lados" className="overflow-x-auto rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus">
           <table className="w-full min-w-[40rem] text-sm tabular-nums [&_td]:whitespace-nowrap">
             <thead>
               <tr>

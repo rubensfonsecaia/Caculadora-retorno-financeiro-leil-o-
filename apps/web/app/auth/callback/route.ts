@@ -1,5 +1,6 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
+import { BACKEND } from "@/lib/env";
 import { supabaseServer } from "@/lib/supabase/server";
 
 function safeNext(n: string | null): string {
@@ -16,6 +17,8 @@ export async function GET(request: NextRequest) {
   const code = url.searchParams.get("code");
   const tokenHash = url.searchParams.get("token_hash");
   const type = url.searchParams.get("type") as EmailOtpType | null;
+  // BUG-003: sem Supabase (demonstração) não há link de e-mail para conferir
+  if (BACKEND === "demo") return NextResponse.redirect(new URL("/entrar", url.origin));
   const db = await supabaseServer();
 
   let ok = false;

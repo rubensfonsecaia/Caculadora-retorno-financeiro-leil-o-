@@ -45,6 +45,7 @@ test.describe("F02 salvar e detalhar um projeto", () => {
     await tabs(page, "Impostos").click();
     await page.getByRole("radio", { name: /Empresa: RET/ }).click();
     await a11y(page, "S10");
+    await page.waitForTimeout(1200); // autosave (debounce de 700 ms)
     await expect(page.getByText("Salvo")).toBeVisible({ timeout: 5000 });
 
     await page.goto(`/projetos/${id}/resultado`);
@@ -100,6 +101,13 @@ test.describe("F02 salvar e detalhar um projeto", () => {
     const id = await saveFromCalculator(page, "Recarregar");
     await page.goto(`/projetos/${id}/venda`);
     await field(page, "Corretagem na venda").fill("4");
+    // com edição ainda não salva, sair da página pede confirmação
+    const prevented = await page.evaluate(() => {
+      const e = new Event("beforeunload", { cancelable: true });
+      window.dispatchEvent(e);
+      return e.defaultPrevented;
+    });
+    expect(prevented, "beforeunload com alteração pendente").toBe(true);
     await page.reload();
     await expect(field(page, "Corretagem na venda")).toHaveValue(/^(4,00|5,00)$/);
     await page.goto(`/projetos/${id}/resultado`);
@@ -162,8 +170,9 @@ test.describe("F02 salvar e detalhar um projeto", () => {
     const other = await context.newPage();
     await other.goto("/config");
     await other.getByRole("button", { name: "Sair", exact: true }).click();
-    await field(page, "Corretagem na venda").fill("3");
-    await expect(page.getByRole("link", { name: "Entre de novo" })).toBeVisible({ timeout: 5000 });
+    // a aba aberta percebe a saída na hora e não deixa editar em nome de ninguém
+    await expect(page.getByRole("heading", { name: "Entre para ver seus projetos" })).toBeVisible({ timeout: 5000 });
+    await expect(page.getByLabel("Corretagem na venda")).toHaveCount(0);
     await page.goto(`/projetos/${id}/venda`);
     await expect(page.getByRole("heading", { name: "Entre para ver seus projetos" })).toBeVisible();
   });
@@ -183,7 +192,8 @@ test.describe("F02 salvar e detalhar um projeto", () => {
 
   test("F02-N2 link de e-mail inválido volta para entrar", async ({ page }) => {
     await page.goto("/auth/callback?next=/projetos");
-    await expect(page).toHaveURL(/\/entrar\?erro=link/);
+    // com Supabase: /entrar?erro=link; na demonstração não há link para conferir: /entrar
+    await expect(page).toHaveURL(/\/entrar(\?erro=link)?$/);
   });
 
   test("F02-N3 nada redireciona para fora do site", async ({ page }) => {

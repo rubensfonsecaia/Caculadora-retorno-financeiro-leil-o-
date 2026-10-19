@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { stripe } from "@/lib/billing/stripe";
-import { SITE_URL } from "@/lib/env";
+import { BACKEND, SITE_URL } from "@/lib/env";
 import { allow } from "@/lib/rate-limit";
-import { requireEnv } from "@/lib/server-env";
+import { requireEnv, serverEnv } from "@/lib/server-env";
 import { currentUser, supabaseAdmin } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -12,6 +12,8 @@ const body = z.object({ interval: z.enum(["month", "year"]) });
 // Assinar o Pro: cria (ou reaproveita) o cliente no Stripe e abre o Checkout
 // hospedado. Nenhum dado de cartão passa por aqui.
 export async function POST(req: Request) {
+  // BUG-003: sem Supabase/Stripe configurados, responde 503 em vez de quebrar
+  if (BACKEND === "demo" || !serverEnv().STRIPE_SECRET_KEY) return Response.json({ error: "not_configured" }, { status: 503 });
   const { user } = await currentUser();
   if (!user) return Response.json({ error: "not_authenticated" }, { status: 401 });
   if (!(await allow(`checkout:${user.id}`, 5, 600))) return Response.json({ error: "rate_limited" }, { status: 429 });

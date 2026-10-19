@@ -92,15 +92,18 @@ export function NumberField({
   }, [value, digits, focused]);
 
   const empty = required && (value == null || value === 0) && !focused;
+  // BUG-006: text-subtle sobre surface-muted dá 4,34:1; no campo somente leitura usa text-muted
+  const affixColor = readOnly ? "text-text-muted" : "text-text-subtle";
   const shownError = error ?? (empty ? "Obrigatório para calcular." : null);
 
   return (
     <FieldShell id={id} label={label} hint={hint} error={shownError} className={className}>
       <div
+        aria-disabled={disabled || undefined}
         className={`${box} ${shownError ? "border-danger" : "border-border-input"} ${readOnly ? "bg-surface-muted" : ""} ${disabled ? "opacity-50" : ""}`}
       >
         {prefix && (
-          <span aria-hidden className="text-sm font-medium text-text-subtle">
+          <span aria-hidden className={`text-sm font-medium ${affixColor}`}>
             {prefix}
           </span>
         )}
@@ -140,7 +143,7 @@ export function NumberField({
         />
         {srUnit && <span className="sr-only">{srUnit}</span>}
         {suffix && (
-          <span aria-hidden className="whitespace-nowrap text-sm font-medium text-text-subtle">
+          <span aria-hidden className={`whitespace-nowrap text-sm font-medium ${affixColor}`}>
             {suffix}
           </span>
         )}

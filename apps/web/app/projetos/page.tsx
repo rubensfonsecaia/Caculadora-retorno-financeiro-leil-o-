@@ -12,6 +12,7 @@ import { Notice } from "@/components/ui/notice";
 import { useToast } from "@/components/ui/toast";
 import { VerdictBadge } from "@/components/ui/verdict";
 import { FREE_PROJECT_LIMIT, PlanLimitError, repo, STATUS_LABEL, type Project, type ProjectStatus } from "@/lib/data";
+import { errorMessage } from "@/lib/errors";
 import { useLive } from "@/lib/hooks";
 
 const FILTERS: { value: "ativos" | ProjectStatus; label: string }[] = [
@@ -60,7 +61,12 @@ function ProjectCard({ p, onDelete }: { p: Project; onDelete: (p: Project) => vo
           className={iconBtn}
           aria-label={p.status === "arquivado" ? `Desarquivar ${p.name}` : `Arquivar ${p.name}`}
           title={p.status === "arquivado" ? "Desarquivar" : "Arquivar"}
-          onClick={() => repo.saveProject(p.id, p.version, { status: p.status === "arquivado" ? "estudo" : "arquivado" })}
+          onClick={() =>
+            repo
+              .saveProject(p.id, p.version, { status: p.status === "arquivado" ? "estudo" : "arquivado" })
+              .then((r) => !r.ok && toast("error", "O projeto mudou em outra aba. Recarregue a página."))
+              .catch((e) => toast("error", errorMessage(e)))
+          }
         >
           {p.status === "arquivado" ? <ArchiveRestore aria-hidden className="h-5 w-5" /> : <Archive aria-hidden className="h-5 w-5" />}
         </button>

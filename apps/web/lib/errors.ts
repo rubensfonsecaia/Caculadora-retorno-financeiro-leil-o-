@@ -13,6 +13,7 @@ const MESSAGES: Record<string, string> = {
   billing_error: "Não deu para falar com o sistema de pagamento. Tente de novo.",
   already_subscribed: "Você já assina o Pro.",
   no_customer: "Ainda não há assinatura para gerenciar.",
+  not_configured: "Pagamento ainda não está ligado nesta instalação.",
 };
 
 /** Mensagem em português para qualquer erro da camada de dados ou das rotas. */

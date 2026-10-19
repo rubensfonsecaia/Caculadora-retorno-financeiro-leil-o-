@@ -129,6 +129,9 @@ export function CashFlowChart({ r }: { r: Result }) {
                 formatter={(v: number) => [formatBRL(v), "Acumulado"]}
                 labelFormatter={(m) => `Mês ${m}`}
                 contentStyle={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)", color: "var(--color-text)" }}
+                // BUG-009: texto usa token de texto, nunca a cor da série (4,4:1 no claro)
+                itemStyle={{ color: "var(--color-text)" }}
+                labelStyle={{ color: "var(--color-text-muted)" }}
                 cursor={{ stroke: "var(--color-text-subtle)" }}
               />
               <Line type="monotone" dataKey="cumulative" stroke="var(--chart-1)" strokeWidth={2} dot={false} activeDot={{ r: 5, stroke: "var(--color-surface)", strokeWidth: 2 }} isAnimationActive={false} />

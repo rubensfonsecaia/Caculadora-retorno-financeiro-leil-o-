@@ -47,6 +47,7 @@ python3 .claude/skills/replica-design/contrast.py replica/design/tokens.json   #
 ## Regras de uso
 
 - Componentes usam só papéis. Nada de `#hex`, `slate-400` ou `px` soltos.
+- `text-subtle` não vai sobre `surface-muted` (4,34:1, abaixo de AA). Ali, use `text-muted`. Achado pelo axe no `/replica-test` (BUG-006).
 - Todo número de dinheiro, %, meses: `font-variant-numeric: tabular-nums`,
   alinhado à direita em tabelas.
 - Status nunca só por cor: veredito tem ícone + palavra ("Viável",

@@ -59,6 +59,17 @@ function write(key: string, value: unknown) {
 }
 
 let memoryDb: Db | null = null;
+
+// BUG-001: cada aba tinha sua cópia em memória e gravava por cima das outras.
+// O navegador avisa as outras abas quando o localStorage muda: aí a cópia é
+// descartada e a próxima leitura (e a conferência de versão) usa o dado novo.
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (e) => {
+    if (e.key === DB_KEY) memoryDb = null;
+    if (e.key === DB_KEY || e.key === SESSION_KEY) notify();
+  });
+}
+
 function db(): Db {
   if (!memoryDb) memoryDb = read<Db>(DB_KEY, { profiles: [], projects: [], scenarios: [], shareLinks: [], cub: [] });
   return memoryDb;
@@ -242,6 +253,12 @@ export const localRepo: Repo = {
     const p = own(db().projects.find((x) => x.id === id), s);
     if (!p) return { ok: false, reason: "not_found" };
     if (p.version !== version) return { ok: false, reason: "conflict", current: structuredClone(p) };
+    // BUG-002: sair de "arquivado" conta como um projeto ativo a mais
+    if (patch.status && patch.status !== "arquivado" && p.status === "arquivado") {
+      const profile = db().profiles.find((x) => x.id === s.userId);
+      const active = db().projects.filter((x) => x.userId === s.userId && x.status !== "arquivado").length;
+      if (profile?.plan === "free" && active >= FREE_PROJECT_LIMIT) throw new PlanLimitError();
+    }
     if (patch.inputs) {
       p.inputs = inputsSchema.parse(patch.inputs);
       Object.assign(p, summarize(p.inputs));
@@ -289,6 +306,8 @@ export const localRepo: Repo = {
     const s = requireUser();
     const d = db();
     if (!own(d.projects.find((x) => x.id === input.projectId), s)) throw new Error("not_found");
+    // BUG-005: mesmo nome no mesmo projeto é recusado, como a unique do banco
+    if (d.scenarios.some((x) => x.projectId === input.projectId && x.name === input.name && x.id !== input.id)) throw new RepoError("duplicate_name");
     if (input.id) {
       const sc = d.scenarios.find((x) => x.id === input.id);
       if (!sc) throw new Error("not_found");
